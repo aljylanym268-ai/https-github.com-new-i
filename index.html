@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>رحم الله أبي - صدقة جارية</title>
+<script>
+(function() {
+  function createStorage() {
+    var store = Object.create(null);
+    return {
+      get length() { return Object.keys(store).length; },
+      key: function(i) { var keys = Object.keys(store); return (i >= 0 && i < keys.length) ? keys[i] : null; },
+      getItem: function(k) { return Object.prototype.hasOwnProperty.call(store, k) ? store[k] : null; },
+      setItem: function(k, v) { store[String(k)] = String(v); },
+      removeItem: function(k) { delete store[k]; },
+      clear: function() { store = Object.create(null); }
+    };
+  }
+  function tryShim(name) {
+    try { window[name]; return; } catch (_) {}
+    try {
+      Object.defineProperty(window, name, { configurable: true, value: createStorage() });
+    } catch (_) {}
+  }
+  tryShim('localStorage');
+  tryShim('sessionStorage');
+})();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --green:#1a472a; --gold:#c9a84c; --cream:#faf6ed;
+  --bg:#f5f0e8; --card:#fff; --text:#1e1e1e; --border:#e8e0d4;
+}
+body.dark{--bg:#121212;--card:#1e1e1e;--text:#f0ece4;--border:#333;--cream:#2a2a2a}
+body{
+  font-family:'Tajawal',sans-serif;
+  background:var(--bg); color:var(--text);
+  line-height:1.7; transition:.3s;
+}
+.container{max-width:900px;margin:0 auto;padding:0 16px}
+
+/* الزخرفة العلوية */
+.top-ornament{
+  background:linear-gradient(135deg,#0d1f14,#1a472a);
+  overflow:hidden;position:relative;height:60px;
+}
+.top-ornament svg{display:block;width:100%;height:100%}
+.ornament-path{
+  fill:none;stroke:var(--gold);stroke-width:1.5;
+  stroke-dasharray:800;stroke-dashoffset:800;
+  animation:drawPath 4s ease-in-out infinite;
+}
+.ornament-path:nth-child(2){animation-delay:.5s;opacity:.6}
+.ornament-path:nth-child(3){animation-delay:1s;opacity:.4}
+@keyframes drawPath{
+  0%{stroke-dashoffset:800;opacity:0}
+  30%{opacity:1}
+  60%{stroke-dashoffset:0;opacity:1}
+  100%{stroke-dashoffset:-800;opacity:0}
+}
+.star{fill:var(--gold);animation:twinkle 2s ease-in-out infinite;transform-origin:center}
+.star:nth-child(odd){animation-delay:1s}
+@keyframes twinkle{
+  0%,100%{opacity:.3;transform:scale(.8)}
+  50%{opacity:1;transform:scale(1.2)}
+}
+
+/* الفيديو */
+.mosque-video-wrapper{
+  position:relative;width:100%;max-width:340px;
+  margin:16px auto 0;height:140px;
+  display:flex;align-items:center;justify-content:center;
+  pointer-events:none;
+}
+.mosque-video{
+  width:100%;height:100%;object-fit:contain;
+  background:transparent;
+  filter:brightness(1.15) contrast(1.15) drop-shadow(0 0 12px rgba(201,168,76,.5));
+}
+body:not(.dark) .mosque-video{
+  filter:brightness(.9) contrast(1.2) drop-shadow(0 0 10px rgba(201,168,76,.4));
+}
+.mosque-video.true-alpha{
+  mix-blend-mode:normal !important;
+  filter:brightness(1) contrast(1) drop-shadow(0 0 12px rgba(201,168,76,.5)) !important;
+}
+
+.hero{
+  background:linear-gradient(135deg,#0d1f14,#1a472a);
+  color:#fff;text-align:center;padding:40px 16px 30px;
+  border-bottom:3px solid var(--gold);
+  position:relative;overflow:hidden;
+}
+.hero h1{font-family:'Amiri',serif;color:var(--gold);font-size:1.8rem;margin-bottom:12px}
+.hero .dua{
+  font-family:'Amiri',serif;font-size:1.1rem;
+  background:rgba(0,0,0,.3);padding:14px 20px;
+  border-radius:12px;border-right:3px solid var(--gold);
+  max-width:650px;margin:0 auto;
+}
+.hero::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(circle at 50% 0%, rgba(201,168,76,.15), transparent 60%);
+  animation:heroGlow 4s ease-in-out infinite;pointer-events:none;
+}
+@keyframes heroGlow{0%,100%{opacity:.3}50%{opacity:.8}}
+
+.topbar{display:flex;justify-content:space-between;align-items:center;padding:12px 0;gap:10px;flex-wrap:wrap}
+.topbar .logo{font-family:'Amiri',serif;color:var(--gold);font-size:1.3rem;font-weight:700}
+.topbar .actions{display:flex;gap:8px;flex-wrap:wrap}
+.topbar button{
+  background:var(--card);color:var(--text);
+  border:1px solid var(--border);padding:8px 16px;
+  border-radius:30px;cursor:pointer;font-family:inherit;
+  transition:.3s;font-size:.9rem;
+}
+.topbar button:hover{background:var(--gold);color:#0d1f14}
+
+.card{
+  background:var(--card);border-radius:16px;
+  padding:24px;margin:20px 0;
+  box-shadow:0 4px 20px rgba(0,0,0,.08);
+  border:1px solid var(--border);
+}
+
+.memorial{text-align:center}
+.memorial img{
+  width:170px;height:170px;object-fit:cover;
+  border-radius:50%;border:4px solid var(--gold);margin-bottom:0;
+  box-shadow:0 0 30px rgba(201,168,76,.4);
+  animation:photoGlow 3s ease-in-out infinite;
+}
+@keyframes photoGlow{
+  0%,100%{box-shadow:0 0 20px rgba(201,168,76,.3)}
+  50%{box-shadow:0 0 40px rgba(201,168,76,.7)}
+}
+.memorial h2{font-family:'Amiri',serif;color:var(--green);font-size:1.9rem;margin-top:8px}
+body.dark .memorial h2{color:var(--gold)}
+.memorial .dates{color:var(--gold);font-weight:500;margin:6px 0 14px;font-size:1rem}
+.memorial .bio{font-size:1.05rem;opacity:.85;max-width:600px;margin:0 auto 16px}
+.memorial .dua-perm{
+  background:var(--cream);padding:16px;border-radius:12px;
+  border-right:4px solid var(--gold);font-family:'Amiri',serif;
+  font-size:1.15rem;color:var(--green);margin:16px 0;
+}
+body.dark .memorial .dua-perm{color:var(--gold)}
+
+.btn{
+  background:var(--gold);color:#0d1f14;
+  border:none;padding:12px 30px;border-radius:50px;
+  font-size:1.05rem;font-weight:700;cursor:pointer;
+  font-family:inherit;transition:.3s;
+  display:inline-flex;align-items:center;gap:8px;
+}
+.btn:hover{transform:scale(1.05)}
+.btn-outline{background:transparent;color:var(--gold);border:2px solid var(--gold)}
+.btn-outline:hover{background:var(--gold);color:#0d1f14}
+
+.counter-box{
+  display:inline-block;background:var(--cream);
+  padding:8px 20px;border-radius:30px;margin-right:10px;font-weight:700;
+}
+.counter-box span{color:var(--gold);font-size:1.2rem}
+
+.fatiha{text-align:center;font-family:'Amiri',serif;font-size:1.3rem;line-height:2.2;color:var(--green)}
+body.dark .fatiha{color:var(--gold)}
+.fatiha .bism{font-size:1.6rem;color:var(--gold);margin-bottom:10px}
+
+.gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-top:14px}
+.gallery .item{position:relative}
+.gallery img{
+  width:100%;aspect-ratio:1;object-fit:cover;
+  border-radius:12px;border:2px solid var(--border);
+  cursor:pointer;transition:.3s;
+}
+.gallery img:hover{transform:scale(1.05);border-color:var(--gold)}
+.gallery .del{
+  position:absolute;top:5px;left:5px;
+  background:#c0392b;color:#fff;border:none;
+  width:28px;height:28px;border-radius:50%;
+  cursor:pointer;font-size:.8rem;
+}
+
+.admin input,.admin textarea{
+  width:100%;padding:10px 14px;border-radius:10px;
+  border:2px solid var(--border);background:var(--bg);
+  color:var(--text);font-family:inherit;
+  margin-bottom:10px;outline:none;transition:.3s;
+}
+.admin input:focus,.admin textarea:focus{border-color:var(--gold)}
+.admin textarea{min-height:80px;resize:vertical}
+.admin label{display:block;margin-bottom:4px;font-weight:600;font-size:.9rem}
+
+h3.title{
+  font-family:'Amiri',serif;font-size:1.5rem;
+  color:var(--green);text-align:center;margin:20px 0 10px;position:relative;
+}
+body.dark h3.title{color:var(--gold)}
+h3.title::after{
+  content:'';display:block;width:60px;height:2px;
+  background:var(--gold);margin:8px auto 0;border-radius:4px;
+}
+
+footer{
+  background:#0d1f14;color:#ddd;text-align:center;
+  padding:24px 16px;margin-top:30px;
+  border-top:3px solid var(--gold);font-size:.9rem;
+}
+
+.toast{
+  position:fixed;bottom:20px;right:20px;
+  background:var(--green);color:#fff;
+  padding:14px 24px;border-radius:12px;
+  border-right:4px solid var(--gold);
+  transform:translateY(100px);opacity:0;
+  transition:.4s;z-index:9999;
+}
+.toast.show{transform:translateY(0);opacity:1}
+
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.8);
+  display:none;align-items:center;justify-content:center;
+  z-index:1000;padding:16px;
+}
+.modal-overlay.show{display:flex}
+.modal{
+  background:var(--card);border-radius:16px;
+  padding:30px;max-width:400px;width:100%;
+  text-align:center;border:2px solid var(--gold);
+}
+.modal h3{font-family:'Amiri',serif;color:var(--green);font-size:1.5rem;margin-bottom:16px}
+body.dark .modal h3{color:var(--gold)}
+.modal input{
+  width:100%;padding:14px;border-radius:12px;
+  border:2px solid var(--border);background:var(--bg);
+  color:var(--text);font-family:inherit;font-size:1.1rem;
+  text-align:center;letter-spacing:4px;
+  outline:none;margin-bottom:14px;transition:.3s;
+}
+.modal input:focus{border-color:var(--gold)}
+.modal .btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.modal .btns button{
+  padding:10px 24px;border-radius:50px;border:none;
+  font-family:inherit;font-weight:700;cursor:pointer;
+  transition:.3s;font-size:.95rem;
+}
+.modal .btn-login{background:var(--gold);color:#0d1f14}
+.modal .btn-cancel{background:var(--border);color:var(--text)}
+.modal .error{color:#c0392b;font-size:.9rem;margin-bottom:10px;min-height:20px}
+
+#adminSection{display:none}
+#adminSection.show{display:block}
+
+.admin-tag{
+  display:inline-block;background:var(--gold);color:#0d1f14;
+  padding:3px 12px;border-radius:20px;font-size:.75rem;
+  margin-bottom:10px;font-weight:700;
+}
+</style>
+</head>
+<body>
+
+<!-- الزخرفة العلوية -->
+<div class="top-ornament">
+  <svg viewBox="0 0 800 60" preserveAspectRatio="none">
+    <path class="ornament-path" d="M0,30 Q100,5 200,30 T400,30 T600,30 T800,30" />
+    <path class="ornament-path" d="M0,40 Q100,15 200,40 T400,40 T600,40 T800,40" />
+    <path class="ornament-path" d="M0,20 Q100,45 200,20 T400,20 T600,20 T800,20" />
+    <circle class="star" cx="80" cy="30" r="2"/>
+    <circle class="star" cx="200" cy="25" r="2.5"/>
+    <circle class="star" cx="320" cy="35" r="2"/>
+    <circle class="star" cx="440" cy="28" r="2.5"/>
+    <circle class="star" cx="560" cy="32" r="2"/>
+    <circle class="star" cx="680" cy="26" r="2.5"/>
+    <circle class="star" cx="150" cy="45" r="1.5"/>
+    <circle class="star" cx="500" cy="48" r="1.5"/>
+  </svg>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<div class="modal-overlay" id="loginModal">
+  <div class="modal">
+    <h3><i class="fas fa-lock"></i> لوحة التحكم</h3>
+    <p style="opacity:.7;font-size:.9rem;margin-bottom:14px">هذه اللوحة خاصة بصاحب الموقع فقط</p>
+    <div class="error" id="loginError"></div>
+    <input type="password" id="passwordInput" placeholder="••••••••" maxlength="20" autocomplete="off">
+    <div class="btns">
+      <button class="btn-login" id="btnLogin"><i class="fas fa-sign-in-alt"></i> دخول</button>
+      <button class="btn-cancel" id="btnCancel">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="topbar">
+    <div class="logo"><i class="fas fa-mosque"></i> صدقة جارية</div>
+    <div class="actions">
+      <button id="btnDark"><i class="fas fa-moon" id="darkIcon"></i> <span id="darkText">ليلي</span></button>
+      <button id="adminBtn"><i class="fas fa-lock"></i> لوحة التحكم</button>
+    </div>
+  </div>
+</div>
+
+<div class="hero">
+  <h1><i class="fas fa-hand-holding-heart"></i> رحم الله أبي <i class="fas fa-hand-holding-heart"></i></h1>
+  <div class="dua" id="heroDua">اللهم اجعل هذا العمل صدقة جارية لوالدي، واغفر له وارحمه، واجمعنا به في الفردوس الأعلى.</div>
+</div>
+
+<div class="container">
+
+  <div class="card memorial">
+    <img id="fatherImg" src="https://ui-avatars.com/api/?name=والدي&background=1a472a&color=c9a84c&size=200" alt="الوالد">
+
+    <!-- ===== فيديو المسجد الشفاف ===== -->
+    <div class="mosque-video-wrapper" id="mosqueWrapper">
+      <video class="mosque-video" id="mosqueVideo"
+             autoplay loop muted playsinline preload="auto"
+             disablepictureinpicture>
+      </video>
+    </div>
+
+    <h2 id="fatherName" style="margin-top:8px">والدي رحمه الله</h2>
+    <div class="dates" id="fatherDates">١٤٠٠هـ - ١٤٤٤هـ</div>
+    <div class="bio" id="fatherBio">رجل تقي ورع، أحب العلم والعمل الصالح.</div>
+    <div class="dua-perm">
+      <i class="fas fa-hands-praying" style="color:var(--gold)"></i>
+      "اللهم اغفر له وارحمه وعافه واعف عنه واجعل قبره روضة من رياض الجنة."
+    </div>
+    <div style="margin-top:16px">
+      <button class="btn" id="btnPray">
+        <i class="fas fa-hands-praying"></i> ادعُ له
+      </button>
+      <div class="counter-box">🕌 <span id="prayerCount">0</span> دعوة</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 class="title">📖 اقرأ الفاتحة وادعُ له</h3>
+    <div class="fatiha">
+      <div class="bism">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
+      <div>الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ</div>
+      <div>الرَّحْمَٰنِ الرَّحِيمِ</div>
+      <div>مَالِكِ يَوْمِ الدِّينِ</div>
+      <div>إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ</div>
+      <div>اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ</div>
+      <div>صِرَاطَ الَّذِينَ أَنْعَمْتَ عَلَيْهِمْ</div>
+      <div>غَيْرِ الْمَغْضُوبِ عَلَيْهِمْ وَلَا الضَّالِّينَ</div>
+      <div style="color:var(--gold);margin-top:8px">آمين</div>
+    </div>
+    <div style="text-align:center;margin-top:16px">
+      <button class="btn btn-outline" id="btnFatiha">
+        <i class="fas fa-book-open"></i> قرأت الفاتحة له
+      </button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 class="title">🖼️ معرض الصور</h3>
+    <div class="gallery" id="gallery"></div>
+  </div>
+
+  <div id="adminSection">
+    <div class="card admin">
+      <div style="text-align:center"><span class="admin-tag"><i class="fas fa-shield-alt"></i> منطقة المدير</span></div>
+      <h3 class="title">⚙️ لوحة التحكم</h3>
+
+      <label>الاسم الكامل</label>
+      <input id="adminName" placeholder="اسم الوالد">
+
+      <label>التواريخ</label>
+      <input id="adminDates" placeholder="مثال: ١٤٠٠هـ - ١٤٤٤هـ">
+
+      <label>نبذة قصيرة</label>
+      <textarea id="adminBio" placeholder="اكتب نبذة عن الوالد..."></textarea>
+
+      <label>رسالة الترحيب</label>
+      <textarea id="adminHero" placeholder="الدعاء الظاهر في الأعلى..."></textarea>
+
+      <label>صورة الوالد (الحد الأقصى 2 ميجا)</label>
+      <input type="file" id="photoInput" accept="image/*">
+
+      <div style="text-align:center;margin-top:10px">
+        <button class="btn" id="btnSave"><i class="fas fa-save"></i> حفظ البيانات</button>
+        <button class="btn btn-outline" id="btnLogout"><i class="fas fa-sign-out-alt"></i> خروج</button>
+      </div>
+    </div>
+
+    <div class="card admin">
+      <h3 class="title">🖼️ إدارة معرض الصور</h3>
+      <div style="text-align:center;margin-bottom:14px">
+        <label for="galleryInput" class="btn" style="cursor:pointer">
+          <i class="fas fa-plus"></i> إضافة صور للمعرض
+        </label>
+        <input type="file" id="galleryInput" accept="image/*" multiple style="display:none">
+      </div>
+      <div class="gallery" id="adminGallery"></div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <p>💚 صدقة جارية لوالدي رحمه الله</p>
+  <p style="margin-top:6px;font-size:.85rem;opacity:.7">اللهم اغفر له وارحمه واجمعنا به في الفردوس الأعلى</p>
+</footer>
+
+<script>
+const SB_URL = 'https://jtiiuzaquutpiekabjdy.supabase.co';
+const SB_KEY = 'sb_publishable_RnjhJzFoTjpK4kNYQzmeUg_q15IfgfB';
+const ADMIN_PASSWORD = '00188699';
+
+// ============================================================
+// 🔴 ضع رابط فيديو المسجد هنا 👇
+// ============================================================
+const MOSQUE_VIDEO_URL = 'https://cdn.pixabay.com/video/2023/04/24/160094-821345694_tiny.mp4';
+
+// نوع الفيديو:
+// 'webm'       → شفاف حقيقي (mix-blend-mode: normal)
+// 'mp4-black'  → خلفية سوداء (يخفيها في الوضع الليلي)
+// 'mp4-white'  → خلفية بيضاء (يخفيها في الوضع النهاري)
+const MOSQUE_VIDEO_TYPE = 'mp4-black';
+
+let db = null;
+let galleryData = [];
+
+function $(id){ return document.getElementById(id); }
+
+function toast(msg, err){
+  const t = $('toast');
+  if(!t) return;
+  t.textContent = msg;
+  t.style.background = err ? '#c0392b' : '#1a472a';
+  t.classList.add('show');
+  clearTimeout(t._t);
+  t._t = setTimeout(function(){ t.classList.remove('show'); }, 3500);
+}
+
+// ============================================================
+// تحميل فيديو المسجد
+// ============================================================
+function loadMosqueVideo(){
+  const video = $('mosqueVideo');
+  const wrapper = $('mosqueWrapper');
+  if(!video || !wrapper) return;
+
+  if(!MOSQUE_VIDEO_URL){
+    wrapper.style.display = 'none';
+    return;
+  }
+
+  // إنشاء source
+  const src = document.createElement('source');
+  src.src = MOSQUE_VIDEO_URL;
+
+  if(MOSQUE_VIDEO_TYPE === 'webm'){
+    src.type = 'video/webm';
+    video.classList.add('true-alpha');
+  } else {
+    src.type = 'video/mp4';
+    if(MOSQUE_VIDEO_TYPE === 'mp4-black'){
+      video.style.mixBlendMode = document.body.classList.contains('dark') ? 'screen' : 'multiply';
+    } else if(MOSQUE_VIDEO_TYPE === 'mp4-white'){
+      video.style.mixBlendMode = 'multiply';
+    }
+  }
+  video.appendChild(src);
+  video.load();
+
+  // محاولة التشغيل
+  const playPromise = video.play();
+  if(playPromise && typeof playPromise.catch === 'function'){
+    playPromise.catch(function(){ /* تجاهل */ });
+  }
+
+  // في حال فشل التحميل
+  video.addEventListener('error', function(){
+    wrapper.style.display = 'none';
+  }, { once: true });
+
+  // احتياطي: إذا لم تظهر أي صورة بعد 3 ثوان، نخفي الفيديو
+  setTimeout(function(){
+    if(video.readyState === 0){
+      wrapper.style.display = 'none';
+    }
+  }, 3000);
+}
+
+function toggleDark(){
+  document.body.classList.toggle('dark');
+  const on = document.body.classList.contains('dark');
+  const icon = $('darkIcon');
+  const txt = $('darkText');
+  if(icon) icon.className = on ? 'fas fa-sun' : 'fas fa-moon';
+  if(txt) txt.textContent = on ? 'نهاري' : 'ليلي';
+  try{ localStorage.setItem('dark', on); }catch(e){}
+
+  // تحديث وضع الفيديو
+  const video = $('mosqueVideo');
+  if(video && MOSQUE_VIDEO_TYPE === 'mp4-black'){
+    video.style.mixBlendMode = on ? 'screen' : 'multiply';
+  }
+}
+try{
+  if(localStorage.getItem('dark') === 'true'){
+    document.body.classList.add('dark');
+    const icon = $('darkIcon');
+    const txt = $('darkText');
+    if(icon) icon.className = 'fas fa-sun';
+    if(txt) txt.textContent = 'نهاري';
+  }
+}catch(e){}
+
+function openLogin(){
+  const modal = $('loginModal');
+  if(!modal){ alert('خطأ: نافذة تسجيل الدخول غير موجودة'); return; }
+  modal.style.display = 'flex';
+  modal.classList.add('show');
+  const err = $('loginError');
+  if(err) err.textContent = '';
+  const inp = $('passwordInput');
+  if(inp){ inp.value = ''; setTimeout(function(){ inp.focus(); }, 200); }
+}
+
+function closeLogin(){
+  const modal = $('loginModal');
+  if(!modal) return;
+  modal.style.display = 'none';
+  modal.classList.remove('show');
+}
+
+function tryLogin(){
+  const inp = $('passwordInput');
+  const err = $('loginError');
+  const pass = (inp && inp.value ? inp.value : '').trim();
+  if(pass === ADMIN_PASSWORD){
+    try{ sessionStorage.setItem('admin_logged', 'yes'); }catch(e){}
+    closeLogin();
+    showAdmin();
+    toast('✅ مرحباً بك في لوحة التحكم');
+  } else {
+    if(err) err.textContent = '❌ الرقم السري غير صحيح';
+    if(inp){ inp.value = ''; inp.focus(); }
+  }
+}
+
+function showAdmin(){
+  const sec = $('adminSection');
+  if(sec){
+    sec.style.display = 'block';
+    sec.classList.add('show');
+    setTimeout(function(){ sec.scrollIntoView({behavior:'smooth'}); }, 200);
+  }
+  const btn = $('adminBtn');
+  if(btn) btn.innerHTML = '<i class="fas fa-unlock"></i> لوحة التحكم';
+}
+
+function logout(){
+  try{ sessionStorage.removeItem('admin_logged'); }catch(e){}
+  const sec = $('adminSection');
+  if(sec){ sec.style.display = 'none'; sec.classList.remove('show'); }
+  const btn = $('adminBtn');
+  if(btn) btn.innerHTML = '<i class="fas fa-lock"></i> لوحة التحكم';
+  toast('👋 تم الخروج');
+}
+
+function bindEvents(){
+  const adminBtn = $('adminBtn');
+  if(adminBtn){
+    adminBtn.addEventListener('click', function(e){
+      e.preventDefault();
+      if(sessionStorage.getItem('admin_logged') === 'yes'){ showAdmin(); }
+      else { openLogin(); }
+    });
+  }
+  const btnCancel = $('btnCancel');
+  if(btnCancel) btnCancel.addEventListener('click', closeLogin);
+  const btnLogin = $('btnLogin');
+  if(btnLogin) btnLogin.addEventListener('click', tryLogin);
+  const passInput = $('passwordInput');
+  if(passInput){
+    passInput.addEventListener('keydown', function(e){
+      if(e.key === 'Enter') tryLogin();
+    });
+  }
+  const btnDark = $('btnDark');
+  if(btnDark) btnDark.addEventListener('click', toggleDark);
+  const btnPray = $('btnPray');
+  if(btnPray) btnPray.addEventListener('click', prayForHim);
+  const btnFatiha = $('btnFatiha');
+  if(btnFatiha) btnFatiha.addEventListener('click', readFatiha);
+  const btnSave = $('btnSave');
+  if(btnSave) btnSave.addEventListener('click', saveData);
+  const btnLogout = $('btnLogout');
+  if(btnLogout) btnLogout.addEventListener('click', logout);
+  const photoInput = $('photoInput');
+  if(photoInput) photoInput.addEventListener('change', handleFatherPhoto);
+  const galleryInput = $('galleryInput');
+  if(galleryInput) galleryInput.addEventListener('change', handleGalleryUpload);
+  try{
+    if(sessionStorage.getItem('admin_logged') === 'yes'){ showAdmin(); }
+  }catch(e){}
+}
+
+function initSupabase(){
+  try{
+    if(typeof supabase === 'undefined'){
+      toast('⚠️ تعذر تحميل مكتبة Supabase', true);
+      return;
+    }
+    db = supabase.createClient(SB_URL, SB_KEY);
+    loadAll();
+  } catch(e){
+    console.error('❌ خطأ في Supabase:', e);
+    toast('⚠️ خطأ في الاتصال بقاعدة البيانات', true);
+  }
+}
+
+async function loadAll(){
+  if(!db) return;
+  try{
+    const {data:f, error:fe} = await db.from('father').select('*').eq('id',1).maybeSingle();
+    if(fe) console.warn('father error:', fe.message);
+    if(f){
+      if(f.image) $('fatherImg').src = f.image;
+      if(f.name) $('fatherName').textContent = f.name;
+      if(f.dates) $('fatherDates').textContent = f.dates;
+      if(f.bio) $('fatherBio').textContent = f.bio;
+      if(f.hero_dua) $('heroDua').textContent = f.hero_dua;
+      $('adminName').value = f.name || '';
+      $('adminDates').value = f.dates || '';
+      $('adminBio').value = f.bio || '';
+      $('adminHero').value = f.hero_dua || '';
+    }
+    const {data:c} = await db.from('counters').select('*').eq('id',1).maybeSingle();
+    if(c){ $('prayerCount').textContent = c.prayers || 0; }
+    await loadGallery();
+  } catch(e){
+    console.error('Load error:', e);
+  }
+}
+
+async function loadGallery(){
+  if(!db) return;
+  const {data:g, error} = await db.from('gallery').select('*').order('created_at',{ascending:false});
+  if(error){ console.warn('gallery error:', error.message); return; }
+  galleryData = g || [];
+  renderGallery(galleryData, 'gallery', false);
+  renderGallery(galleryData, 'adminGallery', true);
+}
+
+function renderGallery(items, containerId, withDelete){
+  const el = $(containerId);
+  if(!el) return;
+  el.innerHTML = '';
+  if(!items.length){
+    el.innerHTML = '<p style="grid-column:1/-1;text-align:center;opacity:.6">لا توجد صور بعد</p>';
+    return;
+  }
+  items.forEach(function(item){
+    const div = document.createElement('div');
+    div.className = 'item';
+    const img = document.createElement('img');
+    img.src = item.url;
+    img.onclick = function(){ window.open(item.url, '_blank'); };
+    div.appendChild(img);
+    if(withDelete){
+      const btn = document.createElement('button');
+      btn.className = 'del';
+      btn.innerHTML = '<i class="fas fa-trash"></i>';
+      btn.onclick = function(e){ e.stopPropagation(); if(confirm('حذف الصورة؟')) deleteImg(item.id); };
+      div.appendChild(btn);
+    }
+    el.appendChild(div);
+  });
+}
+
+async function prayForHim(){
+  if(!db){ toast('❌ لا يوجد اتصال', true); return; }
+  try{
+    const {data:c} = await db.from('counters').select('prayers').eq('id',1).maybeSingle();
+    const n = (c && c.prayers ? c.prayers : 0) + 1;
+    await db.from('counters').upsert({id:1, prayers:n});
+    $('prayerCount').textContent = n;
+    toast('✅ سُجّلت دعوتك، جزاك الله خيراً');
+  }catch(e){ console.warn(e); toast('❌ فشل التسجيل', true); }
+}
+
+async function readFatiha(){
+  if(!db){ toast('❌ لا يوجد اتصال', true); return; }
+  try{
+    const {data:c} = await db.from('counters').select('fatiha').eq('id',1).maybeSingle();
+    const n = (c && c.fatiha ? c.fatiha : 0) + 1;
+    await db.from('counters').upsert({id:1, fatiha:n});
+    toast('📖 تقبل الله، وجعل ثوابها لوالدك');
+  }catch(e){ console.warn(e); toast('❌ فشل التسجيل', true); }
+}
+
+async function saveData(){
+  if(!db){ toast('❌ لا يوجد اتصال', true); return; }
+  let logged = 'no';
+  try{ logged = sessionStorage.getItem('admin_logged'); }catch(e){}
+  if(logged !== 'yes'){ toast('❌ غير مصرح', true); return; }
+  try{
+    const payload = {
+      id:1,
+      name: $('adminName').value,
+      dates: $('adminDates').value,
+      bio: $('adminBio').value,
+      hero_dua: $('adminHero').value
+    };
+    const {error} = await db.from('father').upsert(payload);
+    if(error) throw error;
+    $('fatherName').textContent = payload.name;
+    $('fatherDates').textContent = payload.dates;
+    $('fatherBio').textContent = payload.bio;
+    $('heroDua').textContent = payload.hero_dua;
+    toast('✅ تم الحفظ بنجاح');
+  }catch(e){ console.error(e); toast('❌ فشل الحفظ: ' + e.message, true); }
+}
+
+async function handleFatherPhoto(e){
+  if(!db) return;
+  let logged = 'no';
+  try{ logged = sessionStorage.getItem('admin_logged'); }catch(err){}
+  if(logged !== 'yes') return;
+  const file = e.target.files[0];
+  if(!file) return;
+  if(file.size > 2 * 1024 * 1024){
+    toast('❌ الصورة كبيرة جداً (الحد 2 ميجا)', true);
+    e.target.value = '';
+    return;
+  }
+  toast('⏳ جاري رفع الصورة...');
+  try{
+    const base64 = await new Promise(function(resolve, reject){
+      const r = new FileReader();
+      r.onload = function(ev){ resolve(ev.target.result); };
+      r.onerror = reject;
+      r.readAsDataURL(file);
+    });
+    const {error} = await db.from('father').upsert({id:1, image: base64});
+    if(error) throw error;
+    $('fatherImg').src = base64;
+    toast('📸 تم تحديث الصورة');
+  }catch(err){ console.error(err); toast('❌ فشل الرفع: ' + err.message, true); }
+  e.target.value = '';
+}
+
+async function handleGalleryUpload(e){
+  if(!db) return;
+  let logged = 'no';
+  try{ logged = sessionStorage.getItem('admin_logged'); }catch(err){}
+  if(logged !== 'yes'){ toast('❌ فقط المدير', true); return; }
+  const files = e.target.files;
+  if(!files.length) return;
+  toast('⏳ جاري رفع الصور...');
+  let ok = 0;
+  for(let i = 0; i < files.length; i++){
+    const file = files[i];
+    if(file.size > 2 * 1024 * 1024){ continue; }
+    try{
+      const base64 = await new Promise(function(resolve, reject){
+        const r = new FileReader();
+        r.onload = function(ev){ resolve(ev.target.result); };
+        r.onerror = reject;
+        r.readAsDataURL(file);
+      });
+      const {error} = await db.from('gallery').insert({url: base64, name: file.name});
+      if(error) throw error;
+      ok++;
+    }catch(err){ console.warn('upload error:', err); }
+  }
+  if(ok > 0){ toast('🖼️ تم رفع ' + ok + ' صورة'); await loadGallery(); }
+  else { toast('❌ فشل رفع الصور (تأكد أن حجم كل صورة أقل من 2 ميجا)', true); }
+  e.target.value = '';
+}
+
+async function deleteImg(id){
+  if(!db) return;
+  let logged = 'no';
+  try{ logged = sessionStorage.getItem('admin_logged'); }catch(e){}
+  if(logged !== 'yes') return;
+  try{
+    const {error} = await db.from('gallery').delete().eq('id', id);
+    if(error) throw error;
+    toast('🗑️ تم الحذف');
+    await loadGallery();
+  }catch(e){ console.warn(e); toast('❌ فشل الحذف', true); }
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  bindEvents();
+  loadMosqueVideo();
+  initSupabase();
+});
+
+if(document.readyState === 'interactive' || document.readyState === 'complete'){
+  bindEvents();
+  loadMosqueVideo();
+  initSupabase();
+}
+</script>
+</body>
+</html>
