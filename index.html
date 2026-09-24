@@ -4,281 +4,491 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>رحم الله أبي - صدقة جارية</title>
-<script>
-(function() {
-  function createStorage() {
-    var store = Object.create(null);
-    return {
-      get length() { return Object.keys(store).length; },
-      key: function(i) { var keys = Object.keys(store); return (i >= 0 && i < keys.length) ? keys[i] : null; },
-      getItem: function(k) { return Object.prototype.hasOwnProperty.call(store, k) ? store[k] : null; },
-      setItem: function(k, v) { store[String(k)] = String(v); },
-      removeItem: function(k) { delete store[k]; },
-      clear: function() { store = Object.create(null); }
-    };
-  }
-  function tryShim(name) {
-    try { window[name]; return; } catch (_) {}
-    try {
-      Object.defineProperty(window, name, { configurable: true, value: createStorage() });
-    } catch (_) {}
-  }
-  tryShim('localStorage');
-  tryShim('sessionStorage');
-})();
-</script>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-:root{
-  --green:#1a472a; --gold:#c9a84c; --cream:#faf6ed;
-  --bg:#f5f0e8; --card:#fff; --text:#1e1e1e; --border:#e8e0d4;
-}
-body.dark{--bg:#121212;--card:#1e1e1e;--text:#f0ece4;--border:#333;--cream:#2a2a2a}
-body{
-  font-family:'Tajawal',sans-serif;
-  background:var(--bg); color:var(--text);
-  line-height:1.7; transition:.3s;
-}
-.container{max-width:900px;margin:0 auto;padding:0 16px}
 
-/* الزخرفة العلوية */
-.top-ornament{
-  background:linear-gradient(135deg,#0d1f14,#1a472a);
-  overflow:hidden;position:relative;height:60px;
+<style>
+:root{
+  --green:#1a472a;--green-deep:#0d1f14;--gold:#c9a84c;--gold-light:#e8d9a0;
+  --gold-dark:#9d7a2c;--cream:#faf6ed;--bg:#f3ece1;--card:#ffffff;
+  --text:#1e1e1e;--muted:#6b6b6b;--border:#e8e0d4;
+  --shadow-sm:0 2px 10px rgba(20,15,5,.06);
+  --shadow-md:0 12px 34px rgba(20,15,5,.10);
+  --shadow-lg:0 24px 60px rgba(20,15,5,.16);
+  --radius:22px;--radius-sm:14px;
+  --ease:.35s cubic-bezier(.4,0,.2,1);
 }
+body.dark{
+  --bg:#0b0f14;--card:#161b21;--cream:#1c2229;--text:#f0ece4;
+  --muted:#9aa0a8;--border:#2a3038;--green:#2f6b45;
+  --shadow-md:0 12px 34px rgba(0,0,0,.45);
+  --shadow-lg:0 24px 60px rgba(0,0,0,.55);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Tajawal',sans-serif;color:var(--text);line-height:1.8;min-height:100vh;position:relative;overflow-x:hidden;transition:color .4s}
+
+body::before{content:'';position:fixed;inset:0;z-index:-3;pointer-events:none;
+  background:radial-gradient(ellipse at 50% -10%, rgba(201,168,76,.20), transparent 55%),
+  linear-gradient(180deg,#fdfaf3 0%,#f3ece1 45%,#eae0cf 100%);transition:background .6s ease}
+body.dark::before{background:radial-gradient(ellipse at 50% -10%, rgba(201,168,76,.14), transparent 55%),
+  linear-gradient(180deg,#080c11 0%,#0b0f14 45%,#0a0e13 100%)}
+
+body::after{content:'';position:fixed;inset:0;z-index:-2;pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='72' viewBox='0 0 72 72'%3E%3Cg fill='none' stroke='%23c9a84c' stroke-width='0.7' opacity='0.55'%3E%3Cpath d='M36 2 L70 36 L36 70 L2 36 Z'/%3E%3Cpath d='M36 18 L54 36 L36 54 L18 36 Z'/%3E%3Ccircle cx='36' cy='36' r='4'/%3E%3C/g%3E%3C/svg%3E");
+  background-size:72px 72px;opacity:.30;transition:opacity .6s}
+body.dark::after{opacity:.14}
+
+.container{max-width:920px;margin:0 auto;padding:0 18px}
+
+.top-ornament{height:58px;overflow:hidden;position:relative;
+  background:linear-gradient(135deg,rgba(13,31,20,.92),rgba(26,71,42,.92));
+  border-bottom:1px solid rgba(201,168,76,.35)}
 .top-ornament svg{display:block;width:100%;height:100%}
-.ornament-path{
-  fill:none;stroke:var(--gold);stroke-width:1.5;
-  stroke-dasharray:800;stroke-dashoffset:800;
-  animation:drawPath 4s ease-in-out infinite;
-}
+.ornament-path{fill:none;stroke:var(--gold);stroke-width:1.4;stroke-dasharray:800;stroke-dashoffset:800;animation:drawPath 4.5s ease-in-out infinite}
 .ornament-path:nth-child(2){animation-delay:.5s;opacity:.6}
 .ornament-path:nth-child(3){animation-delay:1s;opacity:.4}
-@keyframes drawPath{
-  0%{stroke-dashoffset:800;opacity:0}
-  30%{opacity:1}
-  60%{stroke-dashoffset:0;opacity:1}
-  100%{stroke-dashoffset:-800;opacity:0}
-}
-.star{fill:var(--gold);animation:twinkle 2s ease-in-out infinite;transform-origin:center}
-.star:nth-child(odd){animation-delay:1s}
-@keyframes twinkle{
-  0%,100%{opacity:.3;transform:scale(.8)}
-  50%{opacity:1;transform:scale(1.2)}
-}
+@keyframes drawPath{0%{stroke-dashoffset:800;opacity:0}30%{opacity:1}60%{stroke-dashoffset:0;opacity:1}100%{stroke-dashoffset:-800;opacity:0}}
+.star-svg{fill:var(--gold);animation:twinkle 2.4s ease-in-out infinite;transform-origin:center}
+.star-svg:nth-child(odd){animation-delay:1.2s}
+@keyframes twinkle{0%,100%{opacity:.25;transform:scale(.7)}50%{opacity:1;transform:scale(1.25)}}
 
-/* الفيديو */
-.mosque-video-wrapper{
-  position:relative;width:100%;max-width:340px;
-  margin:16px auto 0;height:140px;
-  display:flex;align-items:center;justify-content:center;
-  pointer-events:none;
-}
-.mosque-video{
-  width:100%;height:100%;object-fit:contain;
-  background:transparent;
-  filter:brightness(1.15) contrast(1.15) drop-shadow(0 0 12px rgba(201,168,76,.5));
-}
-body:not(.dark) .mosque-video{
-  filter:brightness(.9) contrast(1.2) drop-shadow(0 0 10px rgba(201,168,76,.4));
-}
-.mosque-video.true-alpha{
-  mix-blend-mode:normal !important;
-  filter:brightness(1) contrast(1) drop-shadow(0 0 12px rgba(201,168,76,.5)) !important;
-}
-
-.hero{
-  background:linear-gradient(135deg,#0d1f14,#1a472a);
-  color:#fff;text-align:center;padding:40px 16px 30px;
-  border-bottom:3px solid var(--gold);
-  position:relative;overflow:hidden;
-}
-.hero h1{font-family:'Amiri',serif;color:var(--gold);font-size:1.8rem;margin-bottom:12px}
-.hero .dua{
-  font-family:'Amiri',serif;font-size:1.1rem;
-  background:rgba(0,0,0,.3);padding:14px 20px;
-  border-radius:12px;border-right:3px solid var(--gold);
-  max-width:650px;margin:0 auto;
-}
-.hero::before{
-  content:'';position:absolute;inset:0;
-  background:radial-gradient(circle at 50% 0%, rgba(201,168,76,.15), transparent 60%);
-  animation:heroGlow 4s ease-in-out infinite;pointer-events:none;
-}
-@keyframes heroGlow{0%,100%{opacity:.3}50%{opacity:.8}}
+.site-header{position:sticky;top:0;z-index:60;
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  background:rgba(253,250,243,.78);border-bottom:1px solid rgba(201,168,76,.22);transition:background .4s}
+body.dark .site-header{background:rgba(11,15,20,.80)}
 
 .topbar{display:flex;justify-content:space-between;align-items:center;padding:12px 0;gap:10px;flex-wrap:wrap}
-.topbar .logo{font-family:'Amiri',serif;color:var(--gold);font-size:1.3rem;font-weight:700}
+.topbar .logo{font-family:'Amiri',serif;font-size:1.35rem;font-weight:700;
+  background:linear-gradient(135deg,var(--gold-light),var(--gold) 50%,var(--gold-dark));
+  -webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;color:transparent;
+  display:flex;align-items:center;gap:8px}
+.topbar .logo i{-webkit-text-fill-color:var(--gold);color:var(--gold)}
 .topbar .actions{display:flex;gap:8px;flex-wrap:wrap}
-.topbar button{
-  background:var(--card);color:var(--text);
-  border:1px solid var(--border);padding:8px 16px;
-  border-radius:30px;cursor:pointer;font-family:inherit;
-  transition:.3s;font-size:.9rem;
-}
-.topbar button:hover{background:var(--gold);color:#0d1f14}
+.topbar button{background:rgba(255,255,255,.55);color:var(--green);
+  border:1px solid rgba(201,168,76,.55);padding:9px 18px;border-radius:50px;
+  cursor:pointer;font-family:inherit;font-size:.88rem;font-weight:600;
+  transition:var(--ease);display:inline-flex;align-items:center;gap:7px}
+body.dark .topbar button{background:rgba(255,255,255,.06);color:var(--gold-light)}
+.topbar button:hover{background:linear-gradient(135deg,var(--gold-light),var(--gold));color:#0d1f14;transform:translateY(-2px);box-shadow:0 8px 20px rgba(201,168,76,.35)}
 
-.card{
-  background:var(--card);border-radius:16px;
-  padding:24px;margin:20px 0;
-  box-shadow:0 4px 20px rgba(0,0,0,.08);
-  border:1px solid var(--border);
-}
+.hero{position:relative;overflow:hidden;color:#fff;text-align:center;padding:80px 18px 90px;min-height:520px;
+  display:flex;align-items:center;justify-content:center;border-bottom:3px solid var(--gold);background:#050c18}
+
+.hero-fallback{position:absolute;inset:0;z-index:0;overflow:hidden;
+  background:radial-gradient(ellipse at 50% 100%, rgba(201,168,76,.22) 0%, transparent 55%),
+  radial-gradient(ellipse at 50% 60%, rgba(43,90,150,.35) 0%, transparent 70%),
+  linear-gradient(180deg,#030812 0%,#071326 35%,#0d2340 65%,#08152a 100%)}
+.hero-fallback::before{content:'';position:absolute;inset:0;opacity:.85;
+  background-image:
+    radial-gradient(2px 2px at 8% 12%, #fff, transparent 60%),radial-gradient(1px 1px at 15% 25%, #fff, transparent 60%),
+    radial-gradient(2.2px 2.2px at 22% 8%, #fff, transparent 60%),radial-gradient(1px 1px at 30% 35%, #fff, transparent 60%),
+    radial-gradient(2.5px 2.5px at 38% 18%, #fff, transparent 60%),radial-gradient(1.2px 1.2px at 45% 42%, #fff, transparent 60%),
+    radial-gradient(2px 2px at 52% 10%, #fff, transparent 60%),radial-gradient(1.2px 1.2px at 60% 28%, #fff, transparent 60%),
+    radial-gradient(2.2px 2.2px at 68% 15%, #fff, transparent 60%),radial-gradient(1px 1px at 75% 38%, #fff, transparent 60%),
+    radial-gradient(2px 2px at 82% 22%, #fff, transparent 60%),radial-gradient(1.2px 1.2px at 90% 45%, #fff, transparent 60%);
+  animation:starField 7s ease-in-out infinite}
+@keyframes starField{0%,100%{opacity:.5}50%{opacity:1}}
+.hero-fallback::after{content:'';position:absolute;top:9%;left:9%;width:92px;height:92px;border-radius:50%;
+  background:radial-gradient(circle at 35% 35%, #fffbe0 0%, #f0e2a8 40%, #c9a84c 100%);
+  box-shadow:0 0 40px rgba(253,246,216,.6),0 0 90px rgba(201,168,76,.4),0 0 160px rgba(201,168,76,.25);
+  animation:moonFloat 9s ease-in-out infinite}
+@keyframes moonFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+
+.mosque-silhouette{position:absolute;bottom:0;left:0;right:0;height:62%;z-index:1;pointer-events:none;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 400' preserveAspectRatio='xMidYMax meet'><defs><linearGradient id='g' x1='0' y1='0' x2='0' y2='1'><stop offset='0%25' stop-color='%23030812' stop-opacity='1'/><stop offset='100%25' stop-color='%23020610' stop-opacity='1'/></linearGradient></defs><path fill='url(%23g)' d='M0,400 L0,340 Q100,325 200,318 L200,240 L220,240 L220,318 Q280,308 340,300 L340,180 L360,160 L380,180 L380,300 Q420,270 460,240 L460,150 Q460,120 500,90 Q520,70 530,50 L535,50 L538,45 L545,50 L552,50 Q565,75 590,100 Q620,130 620,160 L620,240 Q680,270 740,300 L740,180 L760,160 L780,180 L780,300 Q840,308 900,318 L900,240 L920,240 L920,318 Q1020,325 1200,340 L1200,400 Z'/><circle cx='530' cy='38' r='5' fill='%23030812'/><circle cx='530' cy='24' r='2' fill='%23c9a84c' opacity='0.95'/></svg>");
+  background-repeat:no-repeat;background-position:bottom center;background-size:100% auto;
+  filter:drop-shadow(0 -6px 25px rgba(201,168,76,.30))}
+.mosque-glow{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:80%;height:42%;z-index:2;pointer-events:none;
+  background:radial-gradient(ellipse at center bottom, rgba(201,168,76,.42) 0%, rgba(201,168,76,.10) 40%, transparent 70%);
+  animation:glowPulse 5s ease-in-out infinite}
+@keyframes glowPulse{0%,100%{opacity:.7}50%{opacity:1}}
+
+.hero-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:2;pointer-events:none;
+  opacity:0;transition:opacity 1.6s ease;filter:brightness(.9) saturate(1.15)}
+.hero-video.loaded{opacity:1}
+.hero-overlay{position:absolute;inset:0;z-index:3;pointer-events:none;
+  background:linear-gradient(180deg,rgba(5,15,25,.55) 0%,rgba(5,15,25,.25) 45%,rgba(5,15,25,.80) 100%)}
+
+.hero-content{position:relative;z-index:4;width:100%;max-width:820px}
+
+/* ✅ صورة الوالد في الهيرو (بدل الأيقونة) */
+.hero-badge{position:relative;width:130px;height:130px;margin:0 auto 20px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(201,168,76,.10);
+  box-shadow:0 0 0 5px rgba(201,168,76,.15), 0 0 0 2px rgba(201,168,76,.6), 0 0 45px rgba(201,168,76,.5);
+  animation:badgePulse 3.5s ease-in-out infinite;
+  overflow:hidden}
+.hero-badge::before{content:'';position:absolute;inset:-6px;border-radius:50%;
+  background:conic-gradient(from 0deg,rgba(201,168,76,0) 0%, #c9a84c 25%, rgba(201,168,76,0) 45%,#e8d9a0 65%, rgba(201,168,76,0) 85%, #c9a84c 100%);
+  animation:spinRing 8s linear infinite;filter:blur(1.5px);z-index:0}
+.hero-badge img{position:relative;z-index:1;width:100%;height:100%;object-fit:cover;border-radius:50%;
+  border:3px solid var(--gold)}
+
+@keyframes badgePulse{0%,100%{box-shadow:0 0 0 5px rgba(201,168,76,.15),0 0 0 2px rgba(201,168,76,.6),0 0 30px rgba(201,168,76,.30)}50%{box-shadow:0 0 0 8px rgba(201,168,76,.10),0 0 0 2px rgba(201,168,76,.8),0 0 55px rgba(201,168,76,.6)}}
+@keyframes spinRing{to{transform:rotate(360deg)}}
+
+.hero h1{font-family:'Amiri',serif;font-size:clamp(1.6rem,5vw,2.7rem);line-height:1.4;margin-bottom:8px;font-weight:700;
+  background:linear-gradient(180deg,#f7ecc4 0%,#c9a84c 55%,#9d7a2c 100%);
+  -webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;color:transparent;
+  filter:drop-shadow(0 4px 16px rgba(0,0,0,.75))}
+.hero-sub{font-family:'Amiri',serif;font-size:1.05rem;color:rgba(255,255,255,.78);margin-bottom:26px;letter-spacing:.5px}
+.hero .dua{font-family:'Amiri',serif;font-size:clamp(.95rem,2.6vw,1.18rem);line-height:2.1;color:#fdfaf3;
+  background:rgba(0,0,0,.42);padding:22px 26px;border-radius:18px;
+  border:1px solid rgba(201,168,76,.35);border-right:3px solid var(--gold);
+  max-width:660px;margin:0 auto;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  text-shadow:0 1px 8px rgba(0,0,0,.85);box-shadow:0 14px 45px rgba(0,0,0,.45)}
+.scroll-hint{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);z-index:5;color:rgba(201,168,76,.85);font-size:1.2rem;animation:hintBounce 2s ease-in-out infinite}
+@keyframes hintBounce{0%,100%{transform:translate(-50%,0);opacity:.6}50%{transform:translate(-50%,10px);opacity:1}}
+
+.card{position:relative;background:var(--card);border-radius:var(--radius);padding:30px 26px;margin:24px 0;
+  box-shadow:var(--shadow-md);border:1px solid var(--border);overflow:hidden;
+  transition:box-shadow var(--ease), transform var(--ease), border-color var(--ease)}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,transparent,var(--gold) 50%,transparent);opacity:.9}
+.card:hover{box-shadow:var(--shadow-lg);border-color:rgba(201,168,76,.4)}
+
+h3.title{font-family:'Amiri',serif;font-size:clamp(1.25rem,3.6vw,1.6rem);color:var(--green);font-weight:700;
+  margin:4px 0 24px;display:flex;align-items:center;justify-content:center;gap:14px;text-align:center}
+body.dark h3.title{color:var(--gold)}
+h3.title::before,h3.title::after{content:'';height:1px;flex:1;max-width:100px;
+  background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.7}
 
 .memorial{text-align:center}
-.memorial img{
-  width:170px;height:170px;object-fit:cover;
-  border-radius:50%;border:4px solid var(--gold);margin-bottom:0;
-  box-shadow:0 0 30px rgba(201,168,76,.4);
-  animation:photoGlow 3s ease-in-out infinite;
-}
-@keyframes photoGlow{
-  0%,100%{box-shadow:0 0 20px rgba(201,168,76,.3)}
-  50%{box-shadow:0 0 40px rgba(201,168,76,.7)}
-}
-.memorial h2{font-family:'Amiri',serif;color:var(--green);font-size:1.9rem;margin-top:8px}
+.photo-wrap{position:relative;width:180px;height:180px;margin:0 auto 14px}
+.photo-wrap::before{content:'';position:absolute;inset:-7px;border-radius:50%;
+  background:conic-gradient(from 0deg,rgba(201,168,76,0) 0%, #c9a84c 25%, rgba(201,168,76,0) 45%,#e8d9a0 65%, rgba(201,168,76,0) 85%, #c9a84c 100%);
+  animation:spinRing 8s linear infinite;filter:blur(1.2px)}
+.photo-wrap img{position:relative;z-index:1;width:100%;height:100%;object-fit:cover;border-radius:50%;
+  border:4px solid var(--gold);background:var(--card);
+  box-shadow:0 0 0 7px var(--card), 0 14px 40px rgba(0,0,0,.28);
+  animation:photoGlow 3.5s ease-in-out infinite}
+@keyframes photoGlow{0%,100%{box-shadow:0 0 0 7px var(--card),0 0 22px rgba(201,168,76,.30)}50%{box-shadow:0 0 0 7px var(--card),0 0 45px rgba(201,168,76,.65)}}
+
+.memorial h2{font-family:'Amiri',serif;font-size:clamp(1.4rem,4.2vw,1.95rem);color:var(--green);margin-top:6px}
 body.dark .memorial h2{color:var(--gold)}
-.memorial .dates{color:var(--gold);font-weight:500;margin:6px 0 14px;font-size:1rem}
-.memorial .bio{font-size:1.05rem;opacity:.85;max-width:600px;margin:0 auto 16px}
-.memorial .dua-perm{
-  background:var(--cream);padding:16px;border-radius:12px;
-  border-right:4px solid var(--gold);font-family:'Amiri',serif;
-  font-size:1.15rem;color:var(--green);margin:16px 0;
-}
-body.dark .memorial .dua-perm{color:var(--gold)}
+.memorial .dates{color:var(--gold);font-weight:600;margin:4px 0 14px;font-size:1rem;
+  display:inline-block;padding:4px 18px;border-radius:50px;background:rgba(201,168,76,.10);border:1px solid rgba(201,168,76,.3)}
+.memorial .bio{font-size:1.05rem;color:var(--muted);max-width:620px;margin:0 auto 18px}
+.memorial .dua-perm{background:var(--cream);padding:20px 22px;border-radius:var(--radius-sm);
+  border-right:4px solid var(--gold);font-family:'Amiri',serif;font-size:1.12rem;line-height:2;
+  color:var(--green);margin:20px 0;box-shadow:var(--shadow-sm)}
+body.dark .memorial .dua-perm{color:var(--gold-light)}
 
-.btn{
-  background:var(--gold);color:#0d1f14;
-  border:none;padding:12px 30px;border-radius:50px;
-  font-size:1.05rem;font-weight:700;cursor:pointer;
-  font-family:inherit;transition:.3s;
-  display:inline-flex;align-items:center;gap:8px;
-}
-.btn:hover{transform:scale(1.05)}
-.btn-outline{background:transparent;color:var(--gold);border:2px solid var(--gold)}
-.btn-outline:hover{background:var(--gold);color:#0d1f14}
+.btn{position:relative;overflow:hidden;
+  background:linear-gradient(135deg,#e0c46a 0%,var(--gold) 45%,var(--gold-dark) 100%);
+  color:#0d1f14;border:none;padding:13px 32px;border-radius:50px;
+  font-size:1.02rem;font-weight:700;font-family:inherit;cursor:pointer;
+  display:inline-flex;align-items:center;gap:9px;
+  box-shadow:0 8px 22px rgba(201,168,76,.35);
+  transition:transform var(--ease), box-shadow var(--ease)}
+.btn:hover{transform:translateY(-3px) scale(1.03);box-shadow:0 14px 32px rgba(201,168,76,.5)}
+.btn:active{transform:translateY(0) scale(.99)}
+.btn:disabled{opacity:.6;cursor:not-allowed;transform:none}
+.btn::after{content:'';position:absolute;top:0;left:-130%;width:55%;height:100%;
+  background:linear-gradient(100deg,transparent,rgba(255,255,255,.6),transparent);
+  transform:skewX(-20deg);transition:left .65s ease}
+.btn:hover::after{left:135%}
+.btn-outline{background:transparent;color:var(--gold);border:2px solid var(--gold);box-shadow:none}
+.btn-outline:hover{background:var(--gold);color:#0d1f14;box-shadow:0 12px 28px rgba(201,168,76,.4)}
+.btn-outline::after{display:none}
 
-.counter-box{
-  display:inline-block;background:var(--cream);
-  padding:8px 20px;border-radius:30px;margin-right:10px;font-weight:700;
-}
-.counter-box span{color:var(--gold);font-size:1.2rem}
+.counter-box{display:inline-flex;align-items:center;gap:9px;
+  background:linear-gradient(135deg,rgba(201,168,76,.16),rgba(201,168,76,.05));
+  border:1px solid rgba(201,168,76,.38);padding:11px 24px;border-radius:50px;
+  font-weight:700;margin-right:10px;transition:var(--ease)}
+.counter-box span{color:var(--gold);font-size:1.25rem;font-weight:700;min-width:20px;text-align:center}
 
-.fatiha{text-align:center;font-family:'Amiri',serif;font-size:1.3rem;line-height:2.2;color:var(--green)}
-body.dark .fatiha{color:var(--gold)}
-.fatiha .bism{font-size:1.6rem;color:var(--gold);margin-bottom:10px}
+.fatiha{text-align:center;font-family:'Amiri',serif;font-size:clamp(1.05rem,3vw,1.32rem);line-height:2.3;color:var(--green)}
+body.dark .fatiha{color:var(--gold-light)}
+.fatiha .bism{font-size:1.55rem;color:var(--gold);margin-bottom:14px;font-weight:700}
+.fatiha > div:not(.bism){padding:1px 0}
+.fatiha .amen{color:var(--gold);margin-top:12px;font-weight:700;font-size:1.2rem}
 
-.gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-top:14px}
-.gallery .item{position:relative}
-.gallery img{
-  width:100%;aspect-ratio:1;object-fit:cover;
-  border-radius:12px;border:2px solid var(--border);
-  cursor:pointer;transition:.3s;
-}
-.gallery img:hover{transform:scale(1.05);border-color:var(--gold)}
-.gallery .del{
-  position:absolute;top:5px;left:5px;
-  background:#c0392b;color:#fff;border:none;
-  width:28px;height:28px;border-radius:50%;
-  cursor:pointer;font-size:.8rem;
-}
+.istighfar-card{text-align:center;position:relative;overflow:hidden;
+  background:linear-gradient(135deg,rgba(26,71,42,.97),rgba(13,31,20,.98));
+  border:2px solid var(--gold);color:#fff}
+body.dark .istighfar-card{background:linear-gradient(135deg,rgba(26,71,42,.85),rgba(13,31,20,.95))}
+.istighfar-card::before{content:'';position:absolute;inset:0;height:auto;
+  background:radial-gradient(circle at 50% 50%, rgba(201,168,76,.18), transparent 70%);
+  animation:glowPulse 4.5s ease-in-out infinite;pointer-events:none;opacity:1}
+.istighfar-card h3.title{color:var(--gold)!important;position:relative;z-index:1}
+.istighfar-text{font-family:'Amiri',serif;font-size:clamp(1.25rem,4vw,1.7rem);color:var(--gold);
+  margin:24px auto;padding:20px;line-height:2;text-shadow:0 2px 14px rgba(0,0,0,.55);
+  position:relative;z-index:1;max-width:620px}
+.istighfar-actions{position:relative;z-index:1;display:flex;justify-content:center;align-items:center;gap:14px;flex-wrap:wrap}
+.istighfar-card .counter-box{background:rgba(0,0,0,.42);color:#fff;border:1px solid rgba(201,168,76,.45)}
+.istighfar-card p{position:relative;z-index:1;margin-top:16px;font-size:.92rem;color:rgba(255,255,255,.8)}
 
-.admin input,.admin textarea{
-  width:100%;padding:10px 14px;border-radius:10px;
-  border:2px solid var(--border);background:var(--bg);
-  color:var(--text);font-family:inherit;
-  margin-bottom:10px;outline:none;transition:.3s;
-}
-.admin input:focus,.admin textarea:focus{border-color:var(--gold)}
-.admin textarea{min-height:80px;resize:vertical}
-.admin label{display:block;margin-bottom:4px;font-weight:600;font-size:.9rem}
+.duas-grid{display:grid;grid-template-columns:1fr;gap:15px;margin-top:18px}
+.dua-item{position:relative;background:linear-gradient(135deg,rgba(201,168,76,.09),rgba(26,71,42,.04));
+  border:1px solid rgba(201,168,76,.3);border-right:4px solid var(--gold);
+  padding:20px 24px;border-radius:var(--radius-sm);
+  transition:transform var(--ease), box-shadow var(--ease), border-color var(--ease)}
+.dua-item:hover{transform:translateX(-5px);box-shadow:0 10px 28px rgba(0,0,0,.12);border-color:var(--gold)}
+.dua-item .dua-text{font-family:'Amiri',serif;font-size:1.14rem;color:var(--text);line-height:2.05;margin-bottom:8px}
+body.dark .dua-item .dua-text{color:var(--gold-light)}
+.dua-item .dua-author{font-size:.85rem;color:var(--gold);font-weight:700;opacity:.95}
+.dua-item .dua-quote{color:var(--gold);font-size:1.6rem;line-height:1;opacity:.45;display:inline-block;vertical-align:-4px}
+.dua-item .dua-del{position:absolute;top:10px;left:10px;background:#c0392b;color:#fff;border:none;
+  width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:.82rem;display:none;z-index:2;transition:var(--ease)}
+.dua-item .dua-del:hover{transform:scale(1.12);background:#e04b3a}
+.admin .dua-item .dua-del{display:block}
 
-h3.title{
-  font-family:'Amiri',serif;font-size:1.5rem;
-  color:var(--green);text-align:center;margin:20px 0 10px;position:relative;
-}
-body.dark h3.title{color:var(--gold)}
-h3.title::after{
-  content:'';display:block;width:60px;height:2px;
-  background:var(--gold);margin:8px auto 0;border-radius:4px;
-}
+.comment-form{margin-bottom:10px}
+.comment-form label{display:block;margin-bottom:5px;font-weight:700;font-size:.9rem;color:var(--green)}
+body.dark .comment-form label{color:var(--gold-light)}
+.comment-form input,.comment-form textarea{
+  width:100%;padding:12px 16px;border-radius:12px;
+  border:2px solid var(--border);background:var(--cream);color:var(--text);
+  font-family:inherit;font-size:.98rem;margin-bottom:12px;outline:none;
+  transition:border-color var(--ease), box-shadow var(--ease)}
+.comment-form input:focus,.comment-form textarea:focus{
+  border-color:var(--gold);box-shadow:0 0 0 4px rgba(201,168,76,.15)}
+.comment-form textarea{min-height:100px;resize:vertical;line-height:1.8}
 
-footer{
-  background:#0d1f14;color:#ddd;text-align:center;
-  padding:24px 16px;margin-top:30px;
-  border-top:3px solid var(--gold);font-size:.9rem;
-}
-
-.toast{
-  position:fixed;bottom:20px;right:20px;
-  background:var(--green);color:#fff;
-  padding:14px 24px;border-radius:12px;
+.comments-list{display:grid;gap:12px;margin-top:20px}
+.comment-item{
+  position:relative;
+  background:linear-gradient(135deg,rgba(201,168,76,.08),rgba(26,71,42,.03));
+  border:1px solid rgba(201,168,76,.25);
   border-right:4px solid var(--gold);
-  transform:translateY(100px);opacity:0;
-  transition:.4s;z-index:9999;
-}
-.toast.show{transform:translateY(0);opacity:1}
+  padding:16px 20px;border-radius:var(--radius-sm);
+  animation:fadeIn .4s ease}
+.comment-item .comment-name{
+  font-weight:700;color:var(--gold);font-size:.92rem;
+  margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.comment-item .comment-text{
+  font-family:'Amiri',serif;font-size:1.05rem;line-height:2;color:var(--text);
+  word-break:break-word}
+body.dark .comment-item .comment-text{color:var(--gold-light)}
+.comment-item .comment-date{
+  font-size:.75rem;opacity:.55;margin-top:6px;display:block}
+.comment-empty{text-align:center;opacity:.55;padding:22px}
 
-.modal-overlay{
-  position:fixed;inset:0;background:rgba(0,0,0,.8);
-  display:none;align-items:center;justify-content:center;
-  z-index:1000;padding:16px;
-}
-.modal-overlay.show{display:flex}
-.modal{
-  background:var(--card);border-radius:16px;
-  padding:30px;max-width:400px;width:100%;
-  text-align:center;border:2px solid var(--gold);
-}
-.modal h3{font-family:'Amiri',serif;color:var(--green);font-size:1.5rem;margin-bottom:16px}
-body.dark .modal h3{color:var(--gold)}
-.modal input{
-  width:100%;padding:14px;border-radius:12px;
-  border:2px solid var(--border);background:var(--bg);
-  color:var(--text);font-family:inherit;font-size:1.1rem;
-  text-align:center;letter-spacing:4px;
-  outline:none;margin-bottom:14px;transition:.3s;
-}
-.modal input:focus{border-color:var(--gold)}
-.modal .btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
-.modal .btns button{
-  padding:10px 24px;border-radius:50px;border:none;
-  font-family:inherit;font-weight:700;cursor:pointer;
-  transition:.3s;font-size:.95rem;
-}
-.modal .btn-login{background:var(--gold);color:#0d1f14}
-.modal .btn-cancel{background:var(--border);color:var(--text)}
-.modal .error{color:#c0392b;font-size:.9rem;margin-bottom:10px;min-height:20px}
+.comment-item .my-actions{
+  position:absolute; top:10px; left:10px;
+  display:flex; gap:6px; z-index:3}
+.comment-item .my-actions button{
+  width:30px;height:30px;border-radius:50%;border:none;
+  cursor:pointer;font-size:.78rem;color:#fff;transition:var(--ease)}
+.comment-item .btn-edit-cmt{background:#2c6cb0}
+.comment-item .btn-edit-cmt:hover{background:#3b8ad9;transform:scale(1.12)}
+.comment-item .btn-del-cmt{background:#c0392b}
+.comment-item .btn-del-cmt:hover{background:#e04b3a;transform:scale(1.12)}
+
+.comment-item .edit-badge{
+  display:inline-block;font-size:.7rem;color:var(--gold);
+  background:rgba(201,168,76,.15);border-radius:10px;
+  padding:1px 8px;margin-right:6px;font-weight:700}
+
+.comment-replies{
+  margin-top:14px;
+  padding-right:16px;
+  border-right:2px solid rgba(201,168,76,.25);
+  display:grid;gap:10px}
+.replies-header{
+  font-size:.82rem;color:var(--gold);font-weight:700;
+  display:flex;align-items:center;gap:6px;margin-bottom:6px}
+.comment-item.reply-item{
+  padding:12px 16px;
+  background:rgba(201,168,76,.05);
+  border-right-width:3px}
+.comment-item.reply-item .comment-text{font-size:1rem}
+
+.btn-reply{
+  margin-top:10px;
+  background:transparent;
+  border:1.5px solid rgba(201,168,76,.5);
+  color:var(--gold);
+  padding:5px 14px;border-radius:50px;
+  font-family:inherit;font-size:.82rem;font-weight:600;
+  cursor:pointer;transition:var(--ease);
+  display:inline-flex;align-items:center;gap:5px}
+.btn-reply:hover{
+  background:rgba(201,168,76,.15);border-color:var(--gold)}
+
+.reply-form-box{
+  margin-top:12px;padding:14px;
+  background:rgba(201,168,76,.06);
+  border:1px dashed rgba(201,168,76,.4);
+  border-radius:12px;
+  animation:fadeIn .3s ease}
+.reply-form-box input,
+.reply-form-box textarea{
+  width:100%;padding:10px 14px;border-radius:10px;
+  border:2px solid var(--border);background:var(--cream);color:var(--text);
+  font-family:inherit;font-size:.95rem;margin-bottom:8px;outline:none;
+  transition:border-color var(--ease), box-shadow var(--ease)}
+.reply-form-box input:focus,
+.reply-form-box textarea:focus{
+  border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,168,76,.15)}
+.reply-form-box textarea{min-height:70px;resize:vertical;line-height:1.8}
+.reply-form-actions{display:flex;gap:8px;justify-content:flex-end}
+.reply-form-actions button{
+  padding:8px 18px;border-radius:50px;border:none;
+  font-family:inherit;font-weight:700;cursor:pointer;font-size:.85rem;
+  transition:var(--ease);display:inline-flex;align-items:center;gap:5px}
+.reply-form-actions .btn-save{
+  background:linear-gradient(135deg,var(--gold-light),var(--gold));color:#0d1f14}
+.reply-form-actions .btn-save:hover{
+  transform:translateY(-2px);box-shadow:0 8px 20px rgba(201,168,76,.4)}
+.reply-form-actions .btn-cancel-edit{
+  background:var(--border);color:var(--text)}
+.reply-form-actions .btn-cancel-edit:hover{background:#c9c9c9}
+
+.videos-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:16px;margin-top:18px}
+.video-item{position:relative;overflow:hidden;border-radius:var(--radius-sm);
+  background:rgba(0,0,0,.4);border:1px solid rgba(201,168,76,.3);
+  transition:transform var(--ease), box-shadow var(--ease), border-color var(--ease)}
+.video-item:hover{transform:translateY(-5px);box-shadow:0 16px 40px rgba(0,0,0,.4);border-color:var(--gold)}
+.video-item .video-wrap{position:relative;width:100%;aspect-ratio:16/9;background:#000}
+.video-item .video-wrap iframe,.video-item .video-wrap video{
+  position:absolute;inset:0;width:100%;height:100%;border:none;display:block}
+.video-item .video-title{padding:13px 15px;font-family:'Amiri',serif;font-size:1rem;color:var(--gold);
+  text-align:center;background:linear-gradient(135deg,rgba(26,71,42,.95),rgba(13,31,20,.95));
+  border-top:1px solid rgba(201,168,76,.25)}
+.video-item .video-del{position:absolute;top:8px;left:8px;background:#c0392b;color:#fff;border:none;
+  width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:.82rem;z-index:5;display:none;transition:var(--ease)}
+.video-item .video-del:hover{transform:scale(1.12)}
+.admin .video-item .video-del{display:block}
+
+.gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:12px;margin-top:16px}
+.gallery .item{position:relative;border-radius:var(--radius-sm);overflow:hidden}
+.gallery img{width:100%;aspect-ratio:1;object-fit:cover;display:block;border-radius:var(--radius-sm);
+  cursor:pointer;border:2px solid var(--border);
+  transition:transform .45s cubic-bezier(.2,.8,.2,1), border-color var(--ease), box-shadow var(--ease)}
+.gallery img:hover{transform:scale(1.07) rotate(-1deg);border-color:var(--gold);box-shadow:0 12px 32px rgba(201,168,76,.4)}
+.gallery .del{position:absolute;top:6px;left:6px;background:#c0392b;color:#fff;border:none;
+  width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:.78rem;z-index:2;transition:var(--ease)}
+.gallery .del:hover{transform:scale(1.12);background:#e04b3a}
+
+.lightbox{position:fixed;inset:0;z-index:1200;background:rgba(5,8,12,.94);
+  display:none;align-items:center;justify-content:center;padding:24px;backdrop-filter:blur(6px)}
+.lightbox.show{display:flex;animation:fadeIn .3s ease}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.lightbox img{max-width:94vw;max-height:86vh;border-radius:14px;border:3px solid var(--gold);
+  box-shadow:0 30px 80px rgba(0,0,0,.8);animation:zoomIn .35s cubic-bezier(.2,.8,.2,1)}
+@keyframes zoomIn{from{transform:scale(.9);opacity:0}to{transform:scale(1);opacity:1}}
+.lb-close{position:absolute;top:22px;left:22px;width:46px;height:46px;border-radius:50%;
+  background:rgba(201,168,76,.15);color:var(--gold);border:1.5px solid rgba(201,168,76,.6);
+  font-size:1.15rem;cursor:pointer;transition:var(--ease)}
+.lb-close:hover{background:var(--gold);color:#0d1f14;transform:rotate(90deg)}
 
 #adminSection{display:none}
-#adminSection.show{display:block}
+#adminSection.show{display:block;animation:slideUp .5s ease}
+@keyframes slideUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
+.admin-tag{display:inline-block;background:linear-gradient(135deg,#e0c46a,var(--gold),var(--gold-dark));
+  color:#0d1f14;padding:5px 18px;border-radius:50px;font-size:.78rem;font-weight:700;margin-bottom:14px;
+  box-shadow:0 6px 18px rgba(201,168,76,.35)}
+.admin input,.admin textarea{width:100%;padding:12px 16px;border-radius:12px;
+  border:2px solid var(--border);background:var(--cream);color:var(--text);
+  font-family:inherit;font-size:.98rem;margin-bottom:12px;outline:none;
+  transition:border-color var(--ease), box-shadow var(--ease)}
+.admin input:focus,.admin textarea:focus{border-color:var(--gold);box-shadow:0 0 0 4px rgba(201,168,76,.15)}
+.admin textarea{min-height:90px;resize:vertical;line-height:1.8}
+.admin label{display:block;margin-bottom:5px;font-weight:700;font-size:.9rem;color:var(--green)}
+body.dark .admin label{color:var(--gold-light)}
 
-.admin-tag{
-  display:inline-block;background:var(--gold);color:#0d1f14;
-  padding:3px 12px;border-radius:20px;font-size:.75rem;
-  margin-bottom:10px;font-weight:700;
+footer{position:relative;z-index:1;text-align:center;
+  background:linear-gradient(135deg,rgba(13,31,20,.95),rgba(26,71,42,.95));
+  color:#e6e6e6;padding:34px 18px;margin-top:50px;border-top:3px solid var(--gold);font-size:.92rem}
+footer::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);
+  width:120px;height:3px;background:var(--gold);box-shadow:0 0 20px rgba(201,168,76,.8)}
+footer p:first-child{font-family:'Amiri',serif;font-size:1.1rem;color:var(--gold);margin-bottom:8px}
+footer p:last-child{opacity:.7;font-size:.85rem}
+
+.toast{position:fixed;bottom:24px;right:24px;z-index:9999;background:var(--green);color:#fff;
+  padding:15px 26px;border-radius:14px;border-right:4px solid var(--gold);
+  box-shadow:0 14px 40px rgba(0,0,0,.35);transform:translateY(120px);opacity:0;
+  transition:transform .45s cubic-bezier(.2,.8,.2,1), opacity .45s;font-weight:600;max-width:88vw}
+.toast.show{transform:translateY(0);opacity:1}
+
+.modal-overlay{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.82);
+  display:none;align-items:center;justify-content:center;padding:18px;backdrop-filter:blur(5px)}
+.modal-overlay.show{display:flex;animation:fadeIn .3s ease}
+.modal{background:var(--card);border-radius:20px;padding:34px 28px;max-width:410px;width:100%;
+  text-align:center;border:2px solid var(--gold);box-shadow:0 30px 80px rgba(0,0,0,.5);
+  animation:zoomIn .35s cubic-bezier(.2,.8,.2,1)}
+.modal h3{font-family:'Amiri',serif;color:var(--green);font-size:1.5rem;margin-bottom:16px}
+body.dark .modal h3{color:var(--gold)}
+.modal input{width:100%;padding:15px;border-radius:14px;border:2px solid var(--border);
+  background:var(--cream);color:var(--text);font-family:inherit;font-size:1.1rem;
+  text-align:center;letter-spacing:6px;outline:none;margin-bottom:16px;
+  transition:border-color var(--ease), box-shadow var(--ease)}
+.modal input:focus{border-color:var(--gold);box-shadow:0 0 0 4px rgba(201,168,76,.15)}
+.modal .btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.modal .btns button{padding:11px 26px;border-radius:50px;border:none;font-family:inherit;
+  font-weight:700;cursor:pointer;font-size:.95rem;transition:var(--ease)}
+.modal .btn-login{background:linear-gradient(135deg,#e0c46a,var(--gold),var(--gold-dark));
+  color:#0d1f14;box-shadow:0 8px 22px rgba(201,168,76,.35)}
+.modal .btn-login:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(201,168,76,.5)}
+.modal .btn-cancel{background:var(--border);color:var(--text)}
+.modal .btn-cancel:hover{background:#c9c9c9}
+.modal .error{color:#c0392b;font-size:.9rem;margin-bottom:12px;min-height:22px;font-weight:600}
+
+.delete-modal-overlay{position:fixed;inset:0;z-index:1100;background:rgba(0,0,0,.78);
+  display:none;align-items:center;justify-content:center;padding:18px;backdrop-filter:blur(4px)}
+.delete-modal-overlay.show{display:flex;animation:fadeIn .25s ease}
+.delete-modal-box{background:var(--card);border-radius:20px;padding:30px 26px;max-width:390px;width:100%;
+  text-align:center;border:2px solid #c0392b;box-shadow:0 30px 80px rgba(0,0,0,.5);
+  animation:zoomIn .3s cubic-bezier(.2,.8,.2,1)}
+.delete-modal-box h4{font-family:'Amiri',serif;color:#c0392b;font-size:1.3rem;margin-bottom:12px}
+.delete-modal-box p{opacity:.85;margin-bottom:20px;font-size:.95rem}
+.delete-modal-box .btns{display:flex;gap:10px;justify-content:center}
+.delete-modal-box button{padding:11px 26px;border-radius:50px;border:none;font-family:inherit;
+  font-weight:700;cursor:pointer;font-size:.95rem;transition:var(--ease)}
+.delete-modal-box .btn-yes{background:#c0392b;color:#fff}
+.delete-modal-box .btn-yes:hover{background:#e04b3a;transform:translateY(-2px)}
+.delete-modal-box .btn-no{background:var(--border);color:var(--text)}
+.delete-modal-box .btn-no:hover{background:#c9c9c9}
+
+.reveal{opacity:0;transform:translateY(30px);transition:opacity .8s ease, transform .8s cubic-bezier(.2,.8,.2,1)}
+.reveal.in{opacity:1;transform:none}
+
+#uploadProgress{margin-bottom:16px}
+#uploadProgress > div{background:rgba(0,0,0,.15);border-radius:20px;overflow:hidden;height:9px}
+body.dark #uploadProgress > div{background:rgba(255,255,255,.1)}
+#uploadBar{width:0%;height:100%;border-radius:20px;
+  background:linear-gradient(90deg,var(--gold-dark),var(--gold),var(--gold-light));
+  transition:width .35s ease;box-shadow:0 0 14px rgba(201,168,76,.6)}
+
+@media (max-width:600px){
+  .hero{min-height:440px;padding:60px 16px 70px}
+  .hero-badge{width:100px;height:100px;margin-bottom:16px}
+  .hero .dua{padding:18px 18px;border-radius:14px}
+  .card{padding:24px 18px;border-radius:18px}
+  .photo-wrap{width:145px;height:145px}
+  .videos-grid{grid-template-columns:1fr}
+  .gallery{grid-template-columns:repeat(auto-fill,minmax(115px,1fr));gap:9px}
+  .topbar{justify-content:center;text-align:center}
+  .topbar .logo{font-size:1.15rem;width:100%;justify-content:center}
+  .topbar button{padding:8px 14px;font-size:.8rem}
+  .toast{right:12px;left:12px;bottom:12px;text-align:center}
+  h3.title::before,h3.title::after{max-width:45px}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
 }
 </style>
 </head>
 <body>
 
-<!-- الزخرفة العلوية -->
 <div class="top-ornament">
   <svg viewBox="0 0 800 60" preserveAspectRatio="none">
-    <path class="ornament-path" d="M0,30 Q100,5 200,30 T400,30 T600,30 T800,30" />
-    <path class="ornament-path" d="M0,40 Q100,15 200,40 T400,40 T600,40 T800,40" />
-    <path class="ornament-path" d="M0,20 Q100,45 200,20 T400,20 T600,20 T800,20" />
-    <circle class="star" cx="80" cy="30" r="2"/>
-    <circle class="star" cx="200" cy="25" r="2.5"/>
-    <circle class="star" cx="320" cy="35" r="2"/>
-    <circle class="star" cx="440" cy="28" r="2.5"/>
-    <circle class="star" cx="560" cy="32" r="2"/>
-    <circle class="star" cx="680" cy="26" r="2.5"/>
-    <circle class="star" cx="150" cy="45" r="1.5"/>
-    <circle class="star" cx="500" cy="48" r="1.5"/>
+    <path class="ornament-path" d="M0,30 Q100,5 200,30 T400,30 T600,30 T800,30"/>
+    <path class="ornament-path" d="M0,40 Q100,15 200,40 T400,40 T600,40 T800,40"/>
+    <path class="ornament-path" d="M0,20 Q100,45 200,20 T400,20 T600,20 T800,20"/>
+    <circle class="star-svg" cx="80"  cy="30" r="2"/>
+    <circle class="star-svg" cx="200" cy="25" r="2.5"/>
+    <circle class="star-svg" cx="320" cy="35" r="2"/>
+    <circle class="star-svg" cx="440" cy="28" r="2.5"/>
+    <circle class="star-svg" cx="560" cy="32" r="2"/>
+    <circle class="star-svg" cx="680" cy="26" r="2.5"/>
   </svg>
 </div>
 
@@ -287,9 +497,9 @@ body.dark .modal h3{color:var(--gold)}
 <div class="modal-overlay" id="loginModal">
   <div class="modal">
     <h3><i class="fas fa-lock"></i> لوحة التحكم</h3>
-    <p style="opacity:.7;font-size:.9rem;margin-bottom:14px">هذه اللوحة خاصة بصاحب الموقع فقط</p>
+    <p style="opacity:.65;font-size:.88rem;margin-bottom:16px">هذه اللوحة خاصة بصاحب الموقع فقط</p>
     <div class="error" id="loginError"></div>
-    <input type="password" id="passwordInput" placeholder="••••••••" maxlength="20" autocomplete="off">
+    <input type="password" id="passwordInput" placeholder="••••••••" maxlength="30" autocomplete="off">
     <div class="btns">
       <button class="btn-login" id="btnLogin"><i class="fas fa-sign-in-alt"></i> دخول</button>
       <button class="btn-cancel" id="btnCancel">إلغاء</button>
@@ -297,45 +507,79 @@ body.dark .modal h3{color:var(--gold)}
   </div>
 </div>
 
-<div class="container">
-  <div class="topbar">
-    <div class="logo"><i class="fas fa-mosque"></i> صدقة جارية</div>
-    <div class="actions">
-      <button id="btnDark"><i class="fas fa-moon" id="darkIcon"></i> <span id="darkText">ليلي</span></button>
-      <button id="adminBtn"><i class="fas fa-lock"></i> لوحة التحكم</button>
+<div class="delete-modal-overlay" id="delModal">
+  <div class="delete-modal-box">
+    <h4><i class="fas fa-trash"></i> تأكيد الحذف</h4>
+    <p id="delModalText">هل أنت متأكد؟</p>
+    <div class="btns">
+      <button class="btn-yes" id="delYes">نعم، احذف</button>
+      <button class="btn-no"  id="delNo">إلغاء</button>
     </div>
   </div>
 </div>
 
+<div class="lightbox" id="lightbox">
+  <button class="lb-close" id="lbClose" aria-label="إغلاق"><i class="fas fa-times"></i></button>
+  <img id="lbImg" src="" alt="صورة">
+</div>
+
+<header class="site-header">
+  <div class="container">
+    <div class="topbar">
+      <div class="logo"><i class="fas fa-mosque"></i> صدقة جارية</div>
+      <div class="actions">
+        <button id="btnDark"><i class="fas fa-moon" id="darkIcon"></i> <span id="darkText">ليلي</span></button>
+        <button id="adminBtn"><i class="fas fa-lock"></i> لوحة التحكم</button>
+      </div>
+    </div>
+  </div>
+</header>
+
 <div class="hero">
-  <h1><i class="fas fa-hand-holding-heart"></i> رحم الله أبي <i class="fas fa-hand-holding-heart"></i></h1>
-  <div class="dua" id="heroDua">اللهم اجعل هذا العمل صدقة جارية لوالدي، واغفر له وارحمه، واجمعنا به في الفردوس الأعلى.</div>
+  <div class="hero-fallback"></div>
+  <div class="mosque-silhouette"></div>
+  <div class="mosque-glow"></div>
+
+  <video class="hero-video" id="heroVideo" autoplay muted loop playsinline preload="auto" disablepictureinpicture webkit-playsinline>
+    <source src="mosque.mp4" type="video/mp4">
+    <source src="https://cdn.pixabay.com/video/2022/06/29/122566-725894328_large.mp4" type="video/mp4">
+    <source src="https://cdn.pixabay.com/video/2020/04/24/37088-413229662_large.mp4" type="video/mp4">
+    <source src="https://cdn.pixabay.com/video/2024/11/23/242945_large.mp4" type="video/mp4">
+    <source src="https://cdn.pixabay.com/video/2021/09/20/89162-613200445_large.mp4" type="video/mp4">
+  </video>
+
+  <div class="hero-overlay"></div>
+
+  <div class="hero-content">
+    <!-- ✅ صورة الوالد بدل الأيقونة -->
+    <div class="hero-badge">
+      <img id="heroFatherImg" src="https://ui-avatars.com/api/?name=والدي&background=1a472a&color=c9a84c&size=200" alt="الوالد">
+    </div>
+    <h1>رحم الله أبي</h1>
+    <div class="hero-sub">صدقة جارية على روحه الطاهرة</div>
+    <div class="dua" id="heroDua">اللهم اجعل هذا العمل صدقة جارية لوالدي، واغفر له وارحمه، واجمعنا به في الفردوس الأعلى.</div>
+  </div>
+
+  <div class="scroll-hint"><i class="fas fa-chevron-down"></i></div>
 </div>
 
 <div class="container">
 
   <div class="card memorial">
-    <img id="fatherImg" src="https://ui-avatars.com/api/?name=والدي&background=1a472a&color=c9a84c&size=200" alt="الوالد">
-
-    <!-- ===== فيديو المسجد الشفاف ===== -->
-    <div class="mosque-video-wrapper" id="mosqueWrapper">
-      <video class="mosque-video" id="mosqueVideo"
-             autoplay loop muted playsinline preload="auto"
-             disablepictureinpicture>
-      </video>
+    <div class="photo-wrap">
+      <img id="fatherImg" src="https://ui-avatars.com/api/?name=والدي&background=1a472a&color=c9a84c&size=200" alt="الوالد">
     </div>
-
-    <h2 id="fatherName" style="margin-top:8px">والدي رحمه الله</h2>
+    <h2 id="fatherName">والدي رحمه الله</h2>
     <div class="dates" id="fatherDates">١٤٠٠هـ - ١٤٤٤هـ</div>
     <div class="bio" id="fatherBio">رجل تقي ورع، أحب العلم والعمل الصالح.</div>
+
     <div class="dua-perm">
       <i class="fas fa-hands-praying" style="color:var(--gold)"></i>
       "اللهم اغفر له وارحمه وعافه واعف عنه واجعل قبره روضة من رياض الجنة."
     </div>
-    <div style="margin-top:16px">
-      <button class="btn" id="btnPray">
-        <i class="fas fa-hands-praying"></i> ادعُ له
-      </button>
+
+    <div style="margin-top:18px">
+      <button class="btn" id="btnPray"><i class="fas fa-hands-praying"></i> ادعُ له</button>
       <div class="counter-box">🕌 <span id="prayerCount">0</span> دعوة</div>
     </div>
   </div>
@@ -351,13 +595,28 @@ body.dark .modal h3{color:var(--gold)}
       <div>اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ</div>
       <div>صِرَاطَ الَّذِينَ أَنْعَمْتَ عَلَيْهِمْ</div>
       <div>غَيْرِ الْمَغْضُوبِ عَلَيْهِمْ وَلَا الضَّالِّينَ</div>
-      <div style="color:var(--gold);margin-top:8px">آمين</div>
+      <div class="amen">آمين</div>
     </div>
-    <div style="text-align:center;margin-top:16px">
-      <button class="btn btn-outline" id="btnFatiha">
-        <i class="fas fa-book-open"></i> قرأت الفاتحة له
-      </button>
+
+    <div style="text-align:center;margin-top:20px">
+      <button class="btn btn-outline" id="btnFatiha"><i class="fas fa-book-open"></i> قرأت الفاتحة له</button>
+      <div class="counter-box" style="margin-top:12px">📖 <span id="fatihaCount">0</span> فاتحة</div>
     </div>
+  </div>
+
+  <div class="card istighfar-card">
+    <h3 class="title">🤲 استغفار</h3>
+    <div class="istighfar-text">"أَسْتَغْفِرُ اللهَ العَظِيمَ وَأَتُوبُ إِلَيْهِ"</div>
+    <div class="istighfar-actions">
+      <button class="btn" id="btnIstighfar"><i class="fas fa-hands-praying"></i> أستغفر</button>
+      <div class="counter-box">✨ <span id="istighfarCount">0</span> استغفار</div>
+    </div>
+    <p>"فَقُلْتُ اسْتَغْفِرُوا رَبَّكُمْ إِنَّهُ كَانَ غَفَّارًا"</p>
+  </div>
+
+  <div class="card">
+    <h3 class="title">🤲 الأدعية</h3>
+    <div class="duas-grid" id="duasGrid"></div>
   </div>
 
   <div class="card">
@@ -365,27 +624,45 @@ body.dark .modal h3{color:var(--gold)}
     <div class="gallery" id="gallery"></div>
   </div>
 
+  <div class="card">
+    <h3 class="title">🎬 مكتبة الفيديو</h3>
+    <div class="videos-grid" id="videosGrid"></div>
+  </div>
+
+  <div class="card">
+    <h3 class="title">💬 اكتب دعاءك</h3>
+
+    <div class="comment-form">
+      <label>اسمك (اختياري)</label>
+      <input id="commentName" maxlength="50" placeholder="اكتب اسمك هنا...">
+      <label>دعاءك</label>
+      <textarea id="commentText" maxlength="500" placeholder="اكتب دعاءك للوالد رحمه الله..."></textarea>
+      <div style="text-align:center">
+        <button class="btn" id="btnAddComment">
+          <i class="fas fa-paper-plane"></i> أرسل الدعاء
+        </button>
+      </div>
+    </div>
+
+    <div class="comments-list" id="commentsList"></div>
+  </div>
+
   <div id="adminSection">
+
     <div class="card admin">
       <div style="text-align:center"><span class="admin-tag"><i class="fas fa-shield-alt"></i> منطقة المدير</span></div>
-      <h3 class="title">⚙️ لوحة التحكم</h3>
-
+      <h3 class="title">⚙️ بيانات الوالد</h3>
       <label>الاسم الكامل</label>
       <input id="adminName" placeholder="اسم الوالد">
-
       <label>التواريخ</label>
       <input id="adminDates" placeholder="مثال: ١٤٠٠هـ - ١٤٤٤هـ">
-
       <label>نبذة قصيرة</label>
       <textarea id="adminBio" placeholder="اكتب نبذة عن الوالد..."></textarea>
-
       <label>رسالة الترحيب</label>
       <textarea id="adminHero" placeholder="الدعاء الظاهر في الأعلى..."></textarea>
-
       <label>صورة الوالد (الحد الأقصى 2 ميجا)</label>
       <input type="file" id="photoInput" accept="image/*">
-
-      <div style="text-align:center;margin-top:10px">
+      <div style="text-align:center;margin-top:14px">
         <button class="btn" id="btnSave"><i class="fas fa-save"></i> حفظ البيانات</button>
         <button class="btn btn-outline" id="btnLogout"><i class="fas fa-sign-out-alt"></i> خروج</button>
       </div>
@@ -393,7 +670,7 @@ body.dark .modal h3{color:var(--gold)}
 
     <div class="card admin">
       <h3 class="title">🖼️ إدارة معرض الصور</h3>
-      <div style="text-align:center;margin-bottom:14px">
+      <div style="text-align:center;margin-bottom:16px">
         <label for="galleryInput" class="btn" style="cursor:pointer">
           <i class="fas fa-plus"></i> إضافة صور للمعرض
         </label>
@@ -401,410 +678,1131 @@ body.dark .modal h3{color:var(--gold)}
       </div>
       <div class="gallery" id="adminGallery"></div>
     </div>
+
+    <div class="card admin">
+      <h3 class="title">🤲 إدارة الأدعية</h3>
+      <label>نص الدعاء</label>
+      <textarea id="newDuaText" placeholder="اكتب الدعاء هنا..."></textarea>
+      <label>المصدر (اختياري)</label>
+      <input id="newDuaAuthor" placeholder="مثال: دعاء من الكتاب والسنة">
+      <div style="text-align:center;margin-bottom:18px">
+        <button class="btn" id="btnAddDua"><i class="fas fa-plus"></i> إضافة دعاء</button>
+      </div>
+      <div class="duas-grid" id="adminDuasGrid"></div>
+    </div>
+
+    <div class="card admin">
+      <h3 class="title">💬 إدارة أدعية الزوار والردود</h3>
+      <div class="comments-list" id="adminCommentsList"></div>
+    </div>
+
+    <div class="card admin">
+      <h3 class="title">🎬 إدارة الفيديوهات</h3>
+
+      <div style="background:rgba(201,168,76,.08);border:1px dashed rgba(201,168,76,.55);border-radius:14px;padding:18px;margin-bottom:16px">
+        <label style="display:block;text-align:center;margin-bottom:12px">
+          <i class="fas fa-cloud-upload-alt" style="color:var(--gold);font-size:1.35rem"></i>
+          <strong> رفع فيديو من الجهاز</strong>
+        </label>
+        <label for="videoFileInput" class="btn" style="cursor:pointer;display:block;text-align:center;width:fit-content;margin:0 auto">
+          <i class="fas fa-video"></i> اختر فيديو من جهازك
+        </label>
+        <input type="file" id="videoFileInput" accept="video/*" style="display:none">
+        <p style="font-size:.8rem;opacity:.7;text-align:center;margin-top:10px">الحد الأقصى: 50 ميجا</p>
+        <label style="margin-top:14px">عنوان الفيديو (اختياري)</label>
+        <input id="newVideoTitle" placeholder="مثال: سورة الرحمن - تلاوة خاشعة">
+      </div>
+
+      <details style="margin-bottom:16px">
+        <summary style="cursor:pointer;color:var(--gold);font-weight:700;padding:8px 0">
+          <i class="fas fa-link"></i> أو أضف برابط (YouTube / MP4)
+        </summary>
+        <div style="padding-top:12px">
+          <label>رابط الفيديو</label>
+          <input id="newVideoUrl" placeholder="https://www.youtube.com/watch?v=... أو https://.../video.mp4">
+          <div style="text-align:center;margin-bottom:16px">
+            <button class="btn" id="btnAddVideo"><i class="fas fa-plus"></i> إضافة بالرابط</button>
+          </div>
+        </div>
+      </details>
+
+      <div id="uploadProgress" style="display:none">
+        <div><div id="uploadBar"></div></div>
+        <p id="uploadText" style="text-align:center;font-size:.85rem;margin-top:8px">جاري الرفع...</p>
+      </div>
+
+      <div class="videos-grid" id="adminVideosGrid"></div>
+    </div>
+
   </div>
 
 </div>
 
 <footer>
   <p>💚 صدقة جارية لوالدي رحمه الله</p>
-  <p style="margin-top:6px;font-size:.85rem;opacity:.7">اللهم اغفر له وارحمه واجمعنا به في الفردوس الأعلى</p>
+  <p>اللهم اغفر له وارحمه واجمعنا به في الفردوس الأعلى</p>
 </footer>
 
 <script>
+/* ============================================================
+   إعداد Supabase
+   ============================================================ */
 const SB_URL = 'https://jtiiuzaquutpiekabjdy.supabase.co';
 const SB_KEY = 'sb_publishable_RnjhJzFoTjpK4kNYQzmeUg_q15IfgfB';
-const ADMIN_PASSWORD = '00188699';
-
-// ============================================================
-// 🔴 ضع رابط فيديو المسجد هنا 👇
-// ============================================================
-const MOSQUE_VIDEO_URL = 'https://cdn.pixabay.com/video/2023/04/24/160094-821345694_tiny.mp4';
-
-// نوع الفيديو:
-// 'webm'       → شفاف حقيقي (mix-blend-mode: normal)
-// 'mp4-black'  → خلفية سوداء (يخفيها في الوضع الليلي)
-// 'mp4-white'  → خلفية بيضاء (يخفيها في الوضع النهاري)
-const MOSQUE_VIDEO_TYPE = 'mp4-black';
 
 let db = null;
-let galleryData = [];
+let ADMIN_PWD = null;
+let galleryData = [], duasData = [], videosData = [], commentsData = [];
 
 function $(id){ return document.getElementById(id); }
 
 function toast(msg, err){
-  const t = $('toast');
-  if(!t) return;
+  const t = $('toast'); if(!t) return;
   t.textContent = msg;
   t.style.background = err ? '#c0392b' : '#1a472a';
   t.classList.add('show');
   clearTimeout(t._t);
-  t._t = setTimeout(function(){ t.classList.remove('show'); }, 3500);
+  t._t = setTimeout(() => t.classList.remove('show'), 3500);
 }
 
-// ============================================================
-// تحميل فيديو المسجد
-// ============================================================
-function loadMosqueVideo(){
-  const video = $('mosqueVideo');
-  const wrapper = $('mosqueWrapper');
-  if(!video || !wrapper) return;
+function askDelete(message){
+  return new Promise(resolve => {
+    const m   = $('delModal');
+    const t   = $('delModalText');
+    const yes = $('delYes');
+    const no  = $('delNo');
 
-  if(!MOSQUE_VIDEO_URL){
-    wrapper.style.display = 'none';
-    return;
-  }
+    if(t) t.textContent = message || 'هل أنت متأكد من الحذف؟';
+    if(m) m.classList.add('show');
 
-  // إنشاء source
-  const src = document.createElement('source');
-  src.src = MOSQUE_VIDEO_URL;
+    const cleanup = () => {
+      if(m) m.classList.remove('show');
+      if(yes) yes.onclick = null;
+      if(no)  no.onclick  = null;
+    };
 
-  if(MOSQUE_VIDEO_TYPE === 'webm'){
-    src.type = 'video/webm';
-    video.classList.add('true-alpha');
-  } else {
-    src.type = 'video/mp4';
-    if(MOSQUE_VIDEO_TYPE === 'mp4-black'){
-      video.style.mixBlendMode = document.body.classList.contains('dark') ? 'screen' : 'multiply';
-    } else if(MOSQUE_VIDEO_TYPE === 'mp4-white'){
-      video.style.mixBlendMode = 'multiply';
-    }
-  }
-  video.appendChild(src);
-  video.load();
+    if(yes) yes.onclick = () => { cleanup(); resolve(true);  };
+    if(no)  no.onclick  = () => { cleanup(); resolve(false); };
+  });
+}
 
-  // محاولة التشغيل
-  const playPromise = video.play();
-  if(playPromise && typeof playPromise.catch === 'function'){
-    playPromise.catch(function(){ /* تجاهل */ });
-  }
+function openLightbox(url){
+  const lb = $('lightbox'), img = $('lbImg');
+  if(!lb || !img) return;
+  img.src = url;
+  lb.classList.add('show');
+}
+function closeLightbox(){
+  const lb = $('lightbox');
+  if(lb) lb.classList.remove('show');
+}
 
-  // في حال فشل التحميل
-  video.addEventListener('error', function(){
-    wrapper.style.display = 'none';
-  }, { once: true });
+function initHeroVideo(){
+  const v = $('heroVideo'); if(!v) return;
+  let loaded = false;
 
-  // احتياطي: إذا لم تظهر أي صورة بعد 3 ثوان، نخفي الفيديو
-  setTimeout(function(){
-    if(video.readyState === 0){
-      wrapper.style.display = 'none';
-    }
-  }, 3000);
+  v.addEventListener('playing', () => { loaded = true; v.classList.add('loaded'); });
+  v.addEventListener('error',   () => { v.style.display = 'none'; });
+
+  const tryPlay = () => { const p = v.play(); if(p && p.catch) p.catch(()=>{}); };
+  tryPlay();
+
+  const retry = () => {
+    tryPlay();
+    ['click','touchstart','scroll','keydown'].forEach(ev => document.removeEventListener(ev, retry));
+  };
+  ['click','touchstart','scroll','keydown'].forEach(ev => document.addEventListener(ev, retry, { once:true }));
+
+  setTimeout(() => {
+    if(!loaded || v.readyState < 2) v.style.display = 'none';
+  }, 8000);
 }
 
 function toggleDark(){
   document.body.classList.toggle('dark');
   const on = document.body.classList.contains('dark');
-  const icon = $('darkIcon');
-  const txt = $('darkText');
-  if(icon) icon.className = on ? 'fas fa-sun' : 'fas fa-moon';
-  if(txt) txt.textContent = on ? 'نهاري' : 'ليلي';
-  try{ localStorage.setItem('dark', on); }catch(e){}
-
-  // تحديث وضع الفيديو
-  const video = $('mosqueVideo');
-  if(video && MOSQUE_VIDEO_TYPE === 'mp4-black'){
-    video.style.mixBlendMode = on ? 'screen' : 'multiply';
-  }
+  const i = $('darkIcon'), t = $('darkText');
+  if(i) i.className = on ? 'fas fa-sun' : 'fas fa-moon';
+  if(t) t.textContent = on ? 'نهاري' : 'ليلي';
+  try { localStorage.setItem('dark', on); } catch(e){}
 }
-try{
+try {
   if(localStorage.getItem('dark') === 'true'){
     document.body.classList.add('dark');
-    const icon = $('darkIcon');
-    const txt = $('darkText');
-    if(icon) icon.className = 'fas fa-sun';
-    if(txt) txt.textContent = 'نهاري';
+    const i = $('darkIcon'), t = $('darkText');
+    if(i) i.className = 'fas fa-sun';
+    if(t) t.textContent = 'نهاري';
   }
-}catch(e){}
+} catch(e){}
+
+function initReveal(){
+  if(!('IntersectionObserver' in window)) return;
+  const els = document.querySelectorAll('.container .card:not(.admin)');
+  els.forEach(el => el.classList.add('reveal'));
+
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(en => {
+      if(en.isIntersecting){ en.target.classList.add('in'); io.unobserve(en.target); }
+    });
+  }, { threshold: .08, rootMargin: '0px 0px -50px 0px' });
+
+  els.forEach(el => io.observe(el));
+}
 
 function openLogin(){
-  const modal = $('loginModal');
-  if(!modal){ alert('خطأ: نافذة تسجيل الدخول غير موجودة'); return; }
-  modal.style.display = 'flex';
-  modal.classList.add('show');
-  const err = $('loginError');
-  if(err) err.textContent = '';
-  const inp = $('passwordInput');
-  if(inp){ inp.value = ''; setTimeout(function(){ inp.focus(); }, 200); }
+  const m = $('loginModal');
+  m.style.display = 'flex';
+  m.classList.add('show');
+  const e = $('loginError'); if(e) e.textContent = '';
+  const i = $('passwordInput');
+  if(i){ i.value = ''; setTimeout(() => i.focus(), 200); }
 }
-
 function closeLogin(){
-  const modal = $('loginModal');
-  if(!modal) return;
-  modal.style.display = 'none';
-  modal.classList.remove('show');
+  const m = $('loginModal');
+  m.style.display = 'none';
+  m.classList.remove('show');
 }
 
-function tryLogin(){
-  const inp = $('passwordInput');
-  const err = $('loginError');
-  const pass = (inp && inp.value ? inp.value : '').trim();
-  if(pass === ADMIN_PASSWORD){
-    try{ sessionStorage.setItem('admin_logged', 'yes'); }catch(e){}
-    closeLogin();
-    showAdmin();
-    toast('✅ مرحباً بك في لوحة التحكم');
-  } else {
-    if(err) err.textContent = '❌ الرقم السري غير صحيح';
-    if(inp){ inp.value = ''; inp.focus(); }
+async function tryLogin(){
+  const i = $('passwordInput'), e = $('loginError'), btn = $('btnLogin');
+  const p = (i && i.value ? i.value : '').trim();
+
+  if(e) e.textContent = '';
+  if(!p){ if(e) e.textContent = 'أدخل كلمة السر'; return; }
+  if(!db){ if(e) e.textContent = '⚠️ لا يوجد اتصال'; return; }
+
+  if(btn){ btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري...'; }
+
+  try {
+    const { data, error } = await db.rpc('verify_admin', { pwd: p });
+    console.log('verify_admin:', { data, error });
+
+    if(error){ if(e) e.textContent = '⚠️ ' + error.message; return; }
+
+    if(data === true){
+      ADMIN_PWD = p;
+      closeLogin();
+      showAdmin();
+      toast('✅ مرحباً بك');
+    } else {
+      if(e) e.textContent = '❌ كلمة السر غير صحيحة';
+      if(i){ i.value = ''; i.focus(); }
+    }
+  } catch(err){
+    console.error(err);
+    if(e) e.textContent = '⚠️ خطأ في الاتصال';
+  } finally {
+    if(btn){ btn.disabled = false; btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> دخول'; }
   }
 }
 
 function showAdmin(){
-  const sec = $('adminSection');
-  if(sec){
-    sec.style.display = 'block';
-    sec.classList.add('show');
-    setTimeout(function(){ sec.scrollIntoView({behavior:'smooth'}); }, 200);
+  const s = $('adminSection');
+  if(s){
+    s.style.display = 'block';
+    s.classList.add('show');
+    setTimeout(() => s.scrollIntoView({ behavior:'smooth' }), 200);
   }
-  const btn = $('adminBtn');
-  if(btn) btn.innerHTML = '<i class="fas fa-unlock"></i> لوحة التحكم';
+  const b = $('adminBtn');
+  if(b) b.innerHTML = '<i class="fas fa-unlock"></i> لوحة التحكم';
+
+  renderDuas(duasData, 'adminDuasGrid', true);
+  renderVideos(videosData, 'adminVideosGrid', true);
+  renderComments(commentsData, 'adminCommentsList', true);
 }
 
 function logout(){
-  try{ sessionStorage.removeItem('admin_logged'); }catch(e){}
-  const sec = $('adminSection');
-  if(sec){ sec.style.display = 'none'; sec.classList.remove('show'); }
-  const btn = $('adminBtn');
-  if(btn) btn.innerHTML = '<i class="fas fa-lock"></i> لوحة التحكم';
+  ADMIN_PWD = null;
+  const s = $('adminSection');
+  if(s){ s.style.display = 'none'; s.classList.remove('show'); }
+  const b = $('adminBtn');
+  if(b) b.innerHTML = '<i class="fas fa-lock"></i> لوحة التحكم';
   toast('👋 تم الخروج');
 }
 
+function requireAdmin(){
+  if(!ADMIN_PWD){ toast('❌ أعد تسجيل الدخول', true); return false; }
+  return true;
+}
+
+async function adminRpc(fnName, params){
+  if(!db) throw new Error('لا يوجد اتصال');
+  if(!ADMIN_PWD) throw new Error('غير مصرح');
+  console.log('RPC →', fnName, params);
+  const { data, error } = await db.rpc(fnName, { pwd: ADMIN_PWD, ...params });
+  console.log('RPC ←', fnName, { data, error });
+  if(error) throw error;
+  return data;
+}
+
+function getVideoEmbed(url){
+  if(!url) return '';
+
+  const ytMatch = url.match(
+    /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/
+  );
+
+  if(ytMatch){
+    const id = ytMatch[1];
+    return '<iframe ' +
+      'src="https://www.youtube-nocookie.com/embed/' + id + '?rel=0&modestbranding=1&playsinline=1" ' +
+      'title="فيديو" ' +
+      'frameborder="0" ' +
+      'allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" ' +
+      'referrerpolicy="strict-origin-when-cross-origin" ' +
+      'allowfullscreen></iframe>';
+  }
+
+  const safeUrl = String(url).replace(/"/g, '&quot;');
+  return '<video src="' + safeUrl + '" controls loop playsinline preload="metadata" style="background:#000"></video>';
+}
+
 function bindEvents(){
-  const adminBtn = $('adminBtn');
-  if(adminBtn){
-    adminBtn.addEventListener('click', function(e){
-      e.preventDefault();
-      if(sessionStorage.getItem('admin_logged') === 'yes'){ showAdmin(); }
-      else { openLogin(); }
-    });
-  }
-  const btnCancel = $('btnCancel');
-  if(btnCancel) btnCancel.addEventListener('click', closeLogin);
-  const btnLogin = $('btnLogin');
-  if(btnLogin) btnLogin.addEventListener('click', tryLogin);
-  const passInput = $('passwordInput');
-  if(passInput){
-    passInput.addEventListener('keydown', function(e){
-      if(e.key === 'Enter') tryLogin();
-    });
-  }
-  const btnDark = $('btnDark');
-  if(btnDark) btnDark.addEventListener('click', toggleDark);
-  const btnPray = $('btnPray');
-  if(btnPray) btnPray.addEventListener('click', prayForHim);
-  const btnFatiha = $('btnFatiha');
-  if(btnFatiha) btnFatiha.addEventListener('click', readFatiha);
-  const btnSave = $('btnSave');
-  if(btnSave) btnSave.addEventListener('click', saveData);
-  const btnLogout = $('btnLogout');
-  if(btnLogout) btnLogout.addEventListener('click', logout);
-  const photoInput = $('photoInput');
-  if(photoInput) photoInput.addEventListener('change', handleFatherPhoto);
-  const galleryInput = $('galleryInput');
-  if(galleryInput) galleryInput.addEventListener('change', handleGalleryUpload);
-  try{
-    if(sessionStorage.getItem('admin_logged') === 'yes'){ showAdmin(); }
-  }catch(e){}
+  const a = $('adminBtn');
+  if(a) a.addEventListener('click', e => {
+    e.preventDefault();
+    if(ADMIN_PWD) showAdmin(); else openLogin();
+  });
+
+  const c = $('btnCancel');   if(c)  c.addEventListener('click', closeLogin);
+  const l = $('btnLogin');    if(l)  l.addEventListener('click', tryLogin);
+  const p = $('passwordInput');
+  if(p) p.addEventListener('keydown', e => { if(e.key === 'Enter') tryLogin(); });
+
+  const d  = $('btnDark');      if(d)  d.addEventListener('click', toggleDark);
+  const pr = $('btnPray');      if(pr) pr.addEventListener('click', prayForHim);
+  const f  = $('btnFatiha');    if(f)  f.addEventListener('click', readFatiha);
+  const is = $('btnIstighfar'); if(is) is.addEventListener('click', doIstighfar);
+  const s  = $('btnSave');      if(s)  s.addEventListener('click', saveData);
+  const lo = $('btnLogout');    if(lo) lo.addEventListener('click', logout);
+  const pi = $('photoInput');   if(pi) pi.addEventListener('change', handleFatherPhoto);
+  const gi = $('galleryInput'); if(gi) gi.addEventListener('change', handleGalleryUpload);
+  const ad = $('btnAddDua');    if(ad) ad.addEventListener('click', addDua);
+  const av = $('btnAddVideo');  if(av) av.addEventListener('click', addVideo);
+  const vf = $('videoFileInput'); if(vf) vf.addEventListener('change', handleVideoUpload);
+
+  const ac = $('btnAddComment');
+  if(ac) ac.addEventListener('click', () => addComment(null));
+
+  const cn = $('commentName');
+  if(cn) cn.addEventListener('keydown', e => {
+    if(e.key === 'Enter'){ e.preventDefault(); $('commentText').focus(); }
+  });
+
+  const lb  = $('lightbox');
+  const lbc = $('lbClose');
+  if(lbc) lbc.addEventListener('click', closeLightbox);
+  if(lb)  lb.addEventListener('click', e => { if(e.target === lb) closeLightbox(); });
+  document.addEventListener('keydown', e => { if(e.key === 'Escape') closeLightbox(); });
 }
 
 function initSupabase(){
-  try{
-    if(typeof supabase === 'undefined'){
-      toast('⚠️ تعذر تحميل مكتبة Supabase', true);
-      return;
-    }
+  try {
+    if(typeof supabase === 'undefined'){ toast('⚠️ تعذر تحميل Supabase', true); return; }
     db = supabase.createClient(SB_URL, SB_KEY);
     loadAll();
   } catch(e){
-    console.error('❌ خطأ في Supabase:', e);
-    toast('⚠️ خطأ في الاتصال بقاعدة البيانات', true);
+    console.error(e);
+    toast('⚠️ خطأ في الاتصال', true);
   }
 }
 
 async function loadAll(){
   if(!db) return;
-  try{
-    const {data:f, error:fe} = await db.from('father').select('*').eq('id',1).maybeSingle();
-    if(fe) console.warn('father error:', fe.message);
+  try {
+    const { data: f } = await db.from('father').select('*').eq('id', 1).maybeSingle();
     if(f){
-      if(f.image) $('fatherImg').src = f.image;
-      if(f.name) $('fatherName').textContent = f.name;
-      if(f.dates) $('fatherDates').textContent = f.dates;
-      if(f.bio) $('fatherBio').textContent = f.bio;
-      if(f.hero_dua) $('heroDua').textContent = f.hero_dua;
-      $('adminName').value = f.name || '';
-      $('adminDates').value = f.dates || '';
-      $('adminBio').value = f.bio || '';
-      $('adminHero').value = f.hero_dua || '';
+      /* ✅ تحديث صورة الوالد في المكانين */
+      if(f.image){
+        $('fatherImg').src = f.image;
+        if($('heroFatherImg')) $('heroFatherImg').src = f.image;
+      }
+      if(f.name)     $('fatherName').textContent  = f.name;
+      if(f.dates)    $('fatherDates').textContent = f.dates;
+      if(f.bio)      $('fatherBio').textContent   = f.bio;
+      if(f.hero_dua) $('heroDua').textContent     = f.hero_dua;
+
+      $('adminName').value  = f.name     || '';
+      $('adminDates').value = f.dates    || '';
+      $('adminBio').value   = f.bio      || '';
+      $('adminHero').value  = f.hero_dua || '';
     }
-    const {data:c} = await db.from('counters').select('*').eq('id',1).maybeSingle();
-    if(c){ $('prayerCount').textContent = c.prayers || 0; }
+
+    const { data: c } = await db.from('counters').select('*').eq('id', 1).maybeSingle();
+    if(c){
+      $('prayerCount').textContent    = c.prayers   || 0;
+      $('istighfarCount').textContent = c.istighfar || 0;
+      $('fatihaCount').textContent    = c.fatiha    || 0;
+    }
+
     await loadGallery();
-  } catch(e){
-    console.error('Load error:', e);
-  }
+    await loadDuas();
+    await loadVideos();
+    await loadComments();
+
+  } catch(e){ console.error(e); }
 }
 
 async function loadGallery(){
   if(!db) return;
-  const {data:g, error} = await db.from('gallery').select('*').order('created_at',{ascending:false});
-  if(error){ console.warn('gallery error:', error.message); return; }
+  const { data: g, error } = await db.from('gallery').select('*').order('created_at', { ascending:false });
+  if(error){ console.warn(error.message); return; }
   galleryData = g || [];
   renderGallery(galleryData, 'gallery', false);
   renderGallery(galleryData, 'adminGallery', true);
 }
 
-function renderGallery(items, containerId, withDelete){
-  const el = $(containerId);
-  if(!el) return;
+function renderGallery(items, cid, withDel){
+  const el = $(cid); if(!el) return;
   el.innerHTML = '';
+
   if(!items.length){
-    el.innerHTML = '<p style="grid-column:1/-1;text-align:center;opacity:.6">لا توجد صور بعد</p>';
+    el.innerHTML = '<p style="grid-column:1/-1;text-align:center;opacity:.55;padding:18px">لا توجد صور بعد</p>';
     return;
   }
-  items.forEach(function(item){
-    const div = document.createElement('div');
-    div.className = 'item';
-    const img = document.createElement('img');
-    img.src = item.url;
-    img.onclick = function(){ window.open(item.url, '_blank'); };
-    div.appendChild(img);
-    if(withDelete){
-      const btn = document.createElement('button');
-      btn.className = 'del';
-      btn.innerHTML = '<i class="fas fa-trash"></i>';
-      btn.onclick = function(e){ e.stopPropagation(); if(confirm('حذف الصورة؟')) deleteImg(item.id); };
-      div.appendChild(btn);
+
+  items.forEach(it => {
+    const d = document.createElement('div');
+    d.className = 'item';
+
+    const i = document.createElement('img');
+    i.src = it.url;
+    i.alt = it.name || 'صورة';
+    i.loading = 'lazy';
+    i.onclick = () => openLightbox(it.url);
+    d.appendChild(i);
+
+    if(withDel){
+      const b = document.createElement('button');
+      b.className = 'del';
+      b.innerHTML = '<i class="fas fa-trash"></i>';
+      b.onclick = async e => {
+        e.stopPropagation();
+        if(await askDelete('حذف هذه الصورة نهائياً؟')) deleteImg(it.id);
+      };
+      d.appendChild(b);
     }
-    el.appendChild(div);
+
+    el.appendChild(d);
   });
 }
 
-async function prayForHim(){
-  if(!db){ toast('❌ لا يوجد اتصال', true); return; }
-  try{
-    const {data:c} = await db.from('counters').select('prayers').eq('id',1).maybeSingle();
-    const n = (c && c.prayers ? c.prayers : 0) + 1;
-    await db.from('counters').upsert({id:1, prayers:n});
-    $('prayerCount').textContent = n;
-    toast('✅ سُجّلت دعوتك، جزاك الله خيراً');
-  }catch(e){ console.warn(e); toast('❌ فشل التسجيل', true); }
-}
-
-async function readFatiha(){
-  if(!db){ toast('❌ لا يوجد اتصال', true); return; }
-  try{
-    const {data:c} = await db.from('counters').select('fatiha').eq('id',1).maybeSingle();
-    const n = (c && c.fatiha ? c.fatiha : 0) + 1;
-    await db.from('counters').upsert({id:1, fatiha:n});
-    toast('📖 تقبل الله، وجعل ثوابها لوالدك');
-  }catch(e){ console.warn(e); toast('❌ فشل التسجيل', true); }
-}
-
-async function saveData(){
-  if(!db){ toast('❌ لا يوجد اتصال', true); return; }
-  let logged = 'no';
-  try{ logged = sessionStorage.getItem('admin_logged'); }catch(e){}
-  if(logged !== 'yes'){ toast('❌ غير مصرح', true); return; }
-  try{
-    const payload = {
-      id:1,
-      name: $('adminName').value,
-      dates: $('adminDates').value,
-      bio: $('adminBio').value,
-      hero_dua: $('adminHero').value
-    };
-    const {error} = await db.from('father').upsert(payload);
-    if(error) throw error;
-    $('fatherName').textContent = payload.name;
-    $('fatherDates').textContent = payload.dates;
-    $('fatherBio').textContent = payload.bio;
-    $('heroDua').textContent = payload.hero_dua;
-    toast('✅ تم الحفظ بنجاح');
-  }catch(e){ console.error(e); toast('❌ فشل الحفظ: ' + e.message, true); }
-}
-
-async function handleFatherPhoto(e){
+async function loadDuas(){
   if(!db) return;
-  let logged = 'no';
-  try{ logged = sessionStorage.getItem('admin_logged'); }catch(err){}
-  if(logged !== 'yes') return;
+  const { data, error } = await db.from('duas').select('*').order('created_at', { ascending:false });
+  if(error){ console.warn(error.message); return; }
+  duasData = data || [];
+  renderDuas(duasData, 'duasGrid', false);
+  renderDuas(duasData, 'adminDuasGrid', true);
+}
+
+function renderDuas(items, cid, withDel){
+  const el = $(cid); if(!el) return;
+  el.innerHTML = '';
+
+  if(!items.length){
+    el.innerHTML = '<p style="text-align:center;opacity:.55;padding:22px">لا توجد أدعية بعد</p>';
+    return;
+  }
+
+  items.forEach(it => {
+    const d = document.createElement('div');
+    d.className = 'dua-item';
+
+    const text = document.createElement('div');
+    text.className = 'dua-text';
+    const quote = document.createElement('span');
+    quote.className = 'dua-quote';
+    quote.textContent = '❝';
+    text.appendChild(quote);
+    text.appendChild(document.createTextNode(' ' + it.text));
+    d.appendChild(text);
+
+    if(it.author){
+      const a = document.createElement('div');
+      a.className = 'dua-author';
+      a.textContent = '— ' + it.author;
+      d.appendChild(a);
+    }
+
+    if(withDel){
+      const b = document.createElement('button');
+      b.className = 'dua-del';
+      b.innerHTML = '<i class="fas fa-trash"></i>';
+      b.onclick = async () => {
+        if(await askDelete('حذف هذا الدعاء؟')) deleteDua(it.id);
+      };
+      d.appendChild(b);
+    }
+
+    el.appendChild(d);
+  });
+}
+
+async function addDua(){
+  if(!requireAdmin()) return;
+  const t = $('newDuaText').value.trim();
+  const a = $('newDuaAuthor').value.trim();
+  if(!t){ toast('❌ اكتب نص الدعاء', true); return; }
+
+  try {
+    await adminRpc('admin_add_dua', { p_text: t, p_author: a });
+    $('newDuaText').value = '';
+    $('newDuaAuthor').value = '';
+    toast('✅ تم إضافة الدعاء');
+    await loadDuas();
+  } catch(e){
+    console.error(e);
+    toast('❌ فشل الإضافة: ' + e.message, true);
+  }
+}
+
+async function deleteDua(id){
+  if(!requireAdmin()) return;
+  try {
+    await adminRpc('admin_del_dua', { p_id: id });
+    toast('🗑️ تم الحذف');
+    await loadDuas();
+  } catch(e){
+    console.warn(e);
+    toast('❌ فشل الحذف: ' + e.message, true);
+  }
+}
+
+async function loadVideos(){
+  if(!db) return;
+  const { data, error } = await db.from('videos').select('*').order('created_at', { ascending:false });
+  if(error){ console.warn(error.message); return; }
+  videosData = data || [];
+  renderVideos(videosData, 'videosGrid', false);
+  renderVideos(videosData, 'adminVideosGrid', true);
+}
+
+function renderVideos(items, cid, withDel){
+  const el = $(cid); if(!el) return;
+  el.innerHTML = '';
+
+  if(!items.length){
+    el.innerHTML = '<p style="grid-column:1/-1;text-align:center;opacity:.55;padding:22px">لا توجد فيديوهات بعد</p>';
+    return;
+  }
+
+  items.forEach(it => {
+    const d = document.createElement('div');
+    d.className = 'video-item';
+
+    const wrap = document.createElement('div');
+    wrap.className = 'video-wrap';
+    wrap.innerHTML = getVideoEmbed(it.url);
+    d.appendChild(wrap);
+
+    if(it.title){
+      const t = document.createElement('div');
+      t.className = 'video-title';
+      t.textContent = it.title;
+      d.appendChild(t);
+    }
+
+    if(withDel){
+      const b = document.createElement('button');
+      b.className = 'video-del';
+      b.innerHTML = '<i class="fas fa-trash"></i>';
+      b.onclick = async () => {
+        if(await askDelete('حذف هذا الفيديو؟')) deleteVideo(it.id);
+      };
+      d.appendChild(b);
+    }
+
+    el.appendChild(d);
+  });
+}
+
+async function addVideo(){
+  if(!requireAdmin()) return;
+  const u = $('newVideoUrl').value.trim();
+  const t = $('newVideoTitle').value.trim();
+  if(!u){ toast('❌ اكتب رابط الفيديو', true); return; }
+
+  const ytMatch = u.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/);
+  if(u.includes('youtube') || u.includes('youtu.be')){
+    if(!ytMatch){
+      toast('❌ رابط يوتيوب غير صالح — استخدم رابط فيديو مباشر', true);
+      return;
+    }
+  }
+
+  try {
+    await adminRpc('admin_add_video', { p_url: u, p_title: t });
+    $('newVideoUrl').value = '';
+    $('newVideoTitle').value = '';
+    toast('✅ تم إضافة الفيديو');
+    await loadVideos();
+  } catch(e){
+    console.error(e);
+    toast('❌ فشل الإضافة: ' + e.message, true);
+  }
+}
+
+async function handleVideoUpload(e){
+  if(!requireAdmin()){ e.target.value = ''; return; }
+
   const file = e.target.files[0];
   if(!file) return;
-  if(file.size > 2 * 1024 * 1024){
-    toast('❌ الصورة كبيرة جداً (الحد 2 ميجا)', true);
+
+  if(!file.type.startsWith('video/')){
+    toast('❌ الملف ليس فيديو', true);
     e.target.value = '';
     return;
   }
-  toast('⏳ جاري رفع الصورة...');
-  try{
-    const base64 = await new Promise(function(resolve, reject){
-      const r = new FileReader();
-      r.onload = function(ev){ resolve(ev.target.result); };
-      r.onerror = reject;
-      r.readAsDataURL(file);
-    });
-    const {error} = await db.from('father').upsert({id:1, image: base64});
+  const MAX = 50 * 1024 * 1024;
+  if(file.size > MAX){
+    toast('❌ الفيديو كبير جداً (الحد 50 ميجا)', true);
+    e.target.value = '';
+    return;
+  }
+
+  const title = ($('newVideoTitle')?.value || '').trim();
+  const prog  = $('uploadProgress');
+  const bar   = $('uploadBar');
+  const txt   = $('uploadText');
+
+  if(prog) prog.style.display = 'block';
+  if(bar)  bar.style.width = '10%';
+  if(txt)  txt.textContent = 'جاري الرفع...';
+
+  try {
+    const ext = file.name.split('.').pop();
+    const fileName = 'vid_' + Date.now() + '_' + Math.random().toString(36).slice(2,8) + '.' + ext;
+
+    const { error: upErr } = await db.storage
+      .from('videos')
+      .upload(fileName, file, { cacheControl:'3600', upsert:false, contentType:file.type });
+    if(upErr) throw upErr;
+
+    if(bar) bar.style.width = '70%';
+
+    const { data: urlData } = db.storage.from('videos').getPublicUrl(fileName);
+
+    await adminRpc('admin_add_video', { p_url: urlData.publicUrl, p_title: title || file.name });
+
+    if(bar) bar.style.width = '100%';
+    if(txt) txt.textContent = '✅ تم الرفع بنجاح';
+    toast('✅ تم رفع الفيديو');
+    if($('newVideoTitle')) $('newVideoTitle').value = '';
+    e.target.value = '';
+
+    setTimeout(() => { if(prog) prog.style.display = 'none'; }, 1500);
+    await loadVideos();
+
+  } catch(err){
+    console.error(err);
+    toast('❌ فشل الرفع: ' + (err.message || 'خطأ غير معروف'), true);
+    if(prog) prog.style.display = 'none';
+    e.target.value = '';
+  }
+}
+
+async function deleteVideo(id){
+  if(!requireAdmin()) return;
+  try {
+    await adminRpc('admin_del_video', { p_id: id });
+    toast('🗑️ تم الحذف');
+    await loadVideos();
+  } catch(e){
+    console.warn(e);
+    toast('❌ فشل الحذف: ' + e.message, true);
+  }
+}
+
+async function bumpCounter(name, spanId, successMsg){
+  if(!db) return toast('❌ لا يوجد اتصال', true);
+  try {
+    const { data, error } = await db.rpc('increment_counter', { counter_name: name });
     if(error) throw error;
-    $('fatherImg').src = base64;
+    if(spanId && $(spanId)) $(spanId).textContent = data;
+    if(successMsg) toast(successMsg);
+  } catch(e){
+    console.error(e);
+    toast('❌ فشل التسجيل', true);
+  }
+}
+
+async function prayForHim(){  await bumpCounter('prayers',   'prayerCount',    '✅ سُجّلت دعوتك'); }
+async function readFatiha(){  await bumpCounter('fatiha',    'fatihaCount',    '📖 تقبل الله'); }
+async function doIstighfar(){ await bumpCounter('istighfar','istighfarCount', '✨ استغفر الله العظيم وأتوب إليه'); }
+
+async function saveData(){
+  if(!requireAdmin()) return;
+  try {
+    await adminRpc('admin_save_father', {
+      p_name:     $('adminName').value,
+      p_dates:    $('adminDates').value,
+      p_bio:      $('adminBio').value,
+      p_hero_dua: $('adminHero').value,
+      p_image:    null
+    });
+
+    $('fatherName').textContent  = $('adminName').value;
+    $('fatherDates').textContent = $('adminDates').value;
+    $('fatherBio').textContent   = $('adminBio').value;
+    $('heroDua').textContent     = $('adminHero').value;
+
+    toast('✅ تم الحفظ');
+  } catch(e){
+    console.error(e);
+    toast('❌ فشل الحفظ: ' + e.message, true);
+  }
+}
+
+async function handleFatherPhoto(e){
+  if(!requireAdmin()){ e.target.value = ''; return; }
+
+  const file = e.target.files[0];
+  if(!file) return;
+
+  if(file.size > 2 * 1024 * 1024){
+    toast('❌ الصورة كبيرة (الحد 2 ميجا)', true);
+    e.target.value = '';
+    return;
+  }
+
+  toast('⏳ جاري الرفع...');
+
+  try {
+    const ext = file.name.split('.').pop();
+    const fileName = 'father_' + Date.now() + '.' + ext;
+
+    const { error: upErr } = await db.storage
+      .from('gallery')
+      .upload(fileName, file, { cacheControl:'3600', upsert:false, contentType:file.type });
+    if(upErr) throw upErr;
+
+    const { data: urlData } = db.storage.from('gallery').getPublicUrl(fileName);
+
+    await adminRpc('admin_save_father', {
+      p_name:     $('adminName').value,
+      p_dates:    $('adminDates').value,
+      p_bio:      $('adminBio').value,
+      p_hero_dua: $('adminHero').value,
+      p_image:    urlData.publicUrl
+    });
+
+    /* ✅ تحديث الصورة في المكانين */
+    $('fatherImg').src = urlData.publicUrl;
+    if($('heroFatherImg')) $('heroFatherImg').src = urlData.publicUrl;
     toast('📸 تم تحديث الصورة');
-  }catch(err){ console.error(err); toast('❌ فشل الرفع: ' + err.message, true); }
+
+  } catch(err){
+    console.error(err);
+    toast('❌ فشل الرفع: ' + (err.message || 'خطأ'), true);
+  }
+
   e.target.value = '';
 }
 
 async function handleGalleryUpload(e){
-  if(!db) return;
-  let logged = 'no';
-  try{ logged = sessionStorage.getItem('admin_logged'); }catch(err){}
-  if(logged !== 'yes'){ toast('❌ فقط المدير', true); return; }
+  if(!requireAdmin()){ e.target.value = ''; return; }
+
   const files = e.target.files;
   if(!files.length) return;
+
   toast('⏳ جاري رفع الصور...');
   let ok = 0;
+
   for(let i = 0; i < files.length; i++){
     const file = files[i];
-    if(file.size > 2 * 1024 * 1024){ continue; }
-    try{
-      const base64 = await new Promise(function(resolve, reject){
-        const r = new FileReader();
-        r.onload = function(ev){ resolve(ev.target.result); };
-        r.onerror = reject;
-        r.readAsDataURL(file);
-      });
-      const {error} = await db.from('gallery').insert({url: base64, name: file.name});
-      if(error) throw error;
+    if(file.size > 2 * 1024 * 1024) continue;
+
+    try {
+      const ext = file.name.split('.').pop();
+      const fileName = 'img_' + Date.now() + '_' + Math.random().toString(36).slice(2,8) + '.' + ext;
+
+      const { error: upErr } = await db.storage
+        .from('gallery')
+        .upload(fileName, file, { cacheControl:'3600', upsert:false, contentType:file.type });
+      if(upErr) throw upErr;
+
+      const { data: urlData } = db.storage.from('gallery').getPublicUrl(fileName);
+      await adminRpc('admin_add_gallery', { p_url: urlData.publicUrl, p_name: file.name });
       ok++;
-    }catch(err){ console.warn('upload error:', err); }
+
+    } catch(err){ console.warn(err); }
   }
+
   if(ok > 0){ toast('🖼️ تم رفع ' + ok + ' صورة'); await loadGallery(); }
-  else { toast('❌ فشل رفع الصور (تأكد أن حجم كل صورة أقل من 2 ميجا)', true); }
+  else toast('❌ فشل الرفع', true);
+
   e.target.value = '';
 }
 
 async function deleteImg(id){
-  if(!db) return;
-  let logged = 'no';
-  try{ logged = sessionStorage.getItem('admin_logged'); }catch(e){}
-  if(logged !== 'yes') return;
-  try{
-    const {error} = await db.from('gallery').delete().eq('id', id);
-    if(error) throw error;
+  if(!requireAdmin()) return;
+  try {
+    await adminRpc('admin_del_gallery', { p_id: id });
     toast('🗑️ تم الحذف');
     await loadGallery();
-  }catch(e){ console.warn(e); toast('❌ فشل الحذف', true); }
+  } catch(e){
+    toast('❌ فشل الحذف: ' + e.message, true);
+  }
 }
 
-document.addEventListener('DOMContentLoaded', function(){
-  bindEvents();
-  loadMosqueVideo();
-  initSupabase();
-});
+/* ============================================================
+   ✅ التعليقات / أدعية الزوار + الردود
+   ============================================================ */
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c =>
+    ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function genToken(){
+  try {
+    if(window.crypto && crypto.randomUUID)
+      return crypto.randomUUID().replace(/-/g,'');
+    if(window.crypto && crypto.getRandomValues){
+      const a = new Uint8Array(16);
+      crypto.getRandomValues(a);
+      return Array.from(a, b => b.toString(16).padStart(2,'0')).join('');
+    }
+  } catch(e){}
+  return 'tk_' + Math.random().toString(36).slice(2) + Date.now().toString(36);
+}
+function tokenKey(id){ return 'cmt_tok_' + id; }
+function getMyToken(id){
+  try { return localStorage.getItem(tokenKey(id)); } catch(e){ return null; }
+}
+function saveMyToken(id, tk){
+  try { localStorage.setItem(tokenKey(id), tk); } catch(e){}
+}
+function removeMyToken(id){
+  try { localStorage.removeItem(tokenKey(id)); } catch(e){}
+}
 
-if(document.readyState === 'interactive' || document.readyState === 'complete'){
+async function loadComments(){
+  if(!db) return;
+  const { data, error } = await db.rpc('list_comments');
+  if(error){ console.warn('list_comments:', error.message); return; }
+  commentsData = data || [];
+  renderComments(commentsData, 'commentsList', false);
+  renderComments(commentsData, 'adminCommentsList', true);
+}
+
+function renderComments(items, cid, withAdminDel){
+  const el = $(cid); if(!el) return;
+  el.innerHTML = '';
+
+  if(!items.length){
+    el.innerHTML = '<p class="comment-empty">لا توجد أدعية بعد — كن أول من يدعو 🤲</p>';
+    return;
+  }
+
+  const repliesMap = {};
+  const roots = [];
+  items.forEach(it => {
+    if(it.parent_id == null) roots.push(it);
+    else {
+      const pid = String(it.parent_id);
+      (repliesMap[pid] = repliesMap[pid] || []).push(it);
+    }
+  });
+
+  roots.sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+
+  roots.forEach(root => {
+    el.appendChild(buildCommentNode(
+      root, repliesMap[String(root.id)] || [], withAdminDel, 0
+    ));
+  });
+}
+
+function buildCommentNode(it, replies, withAdminDel, depth){
+  const d = document.createElement('div');
+  d.className = 'comment-item' + (depth > 0 ? ' reply-item' : '');
+  d.dataset.id = it.id;
+
+  const n = document.createElement('div');
+  n.className = 'comment-name';
+  const isMine = !!getMyToken(it.id);
+  if(isMine){
+    const b = document.createElement('span');
+    b.className = 'edit-badge';
+    b.textContent = 'دعاؤك';
+    n.appendChild(b);
+  }
+  const ic = document.createElement('i');
+  ic.className = 'fas fa-user-circle';
+  n.appendChild(ic);
+  n.appendChild(document.createTextNode(' ' + (it.name || 'زائر')));
+  d.appendChild(n);
+
+  const t = document.createElement('div');
+  t.className = 'comment-text';
+  t.textContent = it.text || '';
+  d.appendChild(t);
+
+  if(it.created_at){
+    const dt = document.createElement('span');
+    dt.className = 'comment-date';
+    try {
+      dt.textContent = new Date(it.created_at).toLocaleDateString('ar-EG',
+        { year:'numeric', month:'long', day:'numeric' });
+    } catch(e){}
+    d.appendChild(dt);
+  }
+
+  const actions = document.createElement('div');
+  actions.className = 'my-actions';
+
+  if(isMine){
+    const eb = document.createElement('button');
+    eb.className = 'btn-edit-cmt'; eb.title = 'تعديل';
+    eb.innerHTML = '<i class="fas fa-pen"></i>';
+    eb.onclick = () => startEditComment(it.id, it.name || '', it.text || '');
+    actions.appendChild(eb);
+
+    const db_ = document.createElement('button');
+    db_.className = 'btn-del-cmt'; db_.title = 'حذف';
+    db_.innerHTML = '<i class="fas fa-trash"></i>';
+    db_.onclick = () => deleteMyComment(it.id);
+    actions.appendChild(db_);
+  }
+
+  if(withAdminDel){
+    const ab = document.createElement('button');
+    ab.className = 'btn-del-cmt'; ab.title = 'حذف (مدير)';
+    ab.innerHTML = '<i class="fas fa-user-shield"></i>';
+    ab.onclick = async () => {
+      if(await askDelete('حذف هذا التعليق وكل ردوده؟')) deleteComment(it.id);
+    };
+    actions.appendChild(ab);
+  }
+  if(actions.children.length) d.appendChild(actions);
+
+  if(!withAdminDel){
+    const rb = document.createElement('button');
+    rb.className = 'btn-reply';
+    rb.innerHTML = '<i class="fas fa-reply"></i> رد';
+    rb.onclick = () => toggleReplyForm(d, it.id);
+    d.appendChild(rb);
+  }
+
+  if(replies.length){
+    const rep = document.createElement('div');
+    rep.className = 'comment-replies';
+    const hd = document.createElement('div');
+    hd.className = 'replies-header';
+    hd.innerHTML = '<i class="fas fa-comments"></i> ' + replies.length + ' رد';
+    rep.appendChild(hd);
+
+    replies.sort((a,b) => new Date(a.created_at) - new Date(b.created_at));
+    replies.forEach(r => rep.appendChild(buildCommentNode(r, [], withAdminDel, 1)));
+    d.appendChild(rep);
+  }
+
+  return d;
+}
+
+function toggleReplyForm(parentNode, parentId){
+  const existing = parentNode.querySelector(':scope > .reply-form-box');
+  if(existing){ existing.remove(); return; }
+
+  const form = document.createElement('div');
+  form.className = 'reply-form-box';
+
+  const nameIn = document.createElement('input');
+  nameIn.type = 'text'; nameIn.maxLength = 50;
+  nameIn.placeholder = 'اسمك (اختياري)';
+  try { nameIn.value = localStorage.getItem('visitor_name') || ''; } catch(e){}
+  form.appendChild(nameIn);
+
+  const txtTa = document.createElement('textarea');
+  txtTa.maxLength = 500;
+  txtTa.placeholder = 'اكتب ردّك أو دعاءك...';
+  form.appendChild(txtTa);
+
+  const row = document.createElement('div');
+  row.className = 'reply-form-actions';
+
+  const cancelB = document.createElement('button');
+  cancelB.className = 'btn-cancel-edit';
+  cancelB.innerHTML = '<i class="fas fa-times"></i> إلغاء';
+  cancelB.onclick = () => form.remove();
+
+  const sendB = document.createElement('button');
+  sendB.className = 'btn-save';
+  sendB.innerHTML = '<i class="fas fa-paper-plane"></i> إرسال';
+  sendB.onclick = () => addComment(parentId, nameIn, txtTa, sendB);
+
+  row.appendChild(cancelB);
+  row.appendChild(sendB);
+  form.appendChild(row);
+
+  parentNode.appendChild(form);
+  setTimeout(() => txtTa.focus(), 120);
+}
+
+async function addComment(parentId, nameEl, textEl, btnEl){
+  if(!db) return toast('❌ لا يوجد اتصال', true);
+
+  if(!nameEl) nameEl = $('commentName');
+  if(!textEl) textEl = $('commentText');
+
+  const name = ((nameEl && nameEl.value) || '').trim() || 'زائر';
+  const text = ((textEl && textEl.value) || '').trim();
+
+  if(!text){ toast('❌ اكتب الدعاء أولاً', true); return; }
+  if(text.length > 500){ toast('❌ النص طويل جداً (الحد 500 حرف)', true); return; }
+  if(name.length > 50){ toast('❌ الاسم طويل جداً', true); return; }
+
+  try { localStorage.setItem('visitor_name', name); } catch(e){}
+
+  const btn = btnEl || $('btnAddComment');
+  const orig = btn ? btn.innerHTML : '';
+  if(btn){ btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الإرسال...'; }
+
+  const token = genToken();
+
+  try {
+    const { data: newId, error } = await db.rpc('add_comment', {
+      p_name:      name,
+      p_text:      text,
+      p_token:     token,
+      p_parent_id: parentId || null
+    });
+    if(error) throw error;
+
+    if(newId) saveMyToken(newId, token);
+    if(textEl) textEl.value = '';
+
+    toast(parentId ? '💬 تم نشر ردّك' : '🤲 جزاك الله خيراً، تم نشر دعائك');
+    await loadComments();
+  } catch(e){
+    console.error(e);
+    toast('❌ فشل الإرسال: ' + e.message, true);
+  } finally {
+    if(btn){ btn.disabled = false; btn.innerHTML = orig; }
+  }
+}
+
+function startEditComment(id, currentName, currentText){
+  const el = document.querySelector('.comment-item[data-id="' + id + '"]');
+  if(!el) return;
+
+  const nameEl   = el.querySelector(':scope > .comment-name');
+  const textEl   = el.querySelector(':scope > .comment-text');
+  const dateEl   = el.querySelector(':scope > .comment-date');
+  const actionEl = el.querySelector(':scope > .my-actions');
+  const replyBtn = el.querySelector(':scope > .btn-reply');
+  if(nameEl)   nameEl.style.display   = 'none';
+  if(textEl)   textEl.style.display   = 'none';
+  if(dateEl)   dateEl.style.display   = 'none';
+  if(actionEl) actionEl.style.display = 'none';
+  if(replyBtn) replyBtn.style.display = 'none';
+
+  const form = document.createElement('div');
+  form.className = 'reply-form-box';
+
+  const nameIn = document.createElement('input');
+  nameIn.type = 'text'; nameIn.maxLength = 50;
+  nameIn.value = currentName || '';
+  nameIn.placeholder = 'اسمك';
+  form.appendChild(nameIn);
+
+  const txtTa = document.createElement('textarea');
+  txtTa.maxLength = 500;
+  txtTa.value = currentText || '';
+  txtTa.placeholder = 'دعاؤك...';
+  form.appendChild(txtTa);
+
+  const row = document.createElement('div');
+  row.className = 'reply-form-actions';
+
+  const cancelB = document.createElement('button');
+  cancelB.className = 'btn-cancel-edit';
+  cancelB.innerHTML = '<i class="fas fa-times"></i> إلغاء';
+  cancelB.onclick = () => loadComments();
+
+  const saveB = document.createElement('button');
+  saveB.className = 'btn-save';
+  saveB.innerHTML = '<i class="fas fa-check"></i> حفظ';
+  saveB.onclick = () => saveEditComment(id, nameIn.value, txtTa.value);
+
+  row.appendChild(cancelB);
+  row.appendChild(saveB);
+  form.appendChild(row);
+
+  el.appendChild(form);
+  nameIn.focus();
+}
+
+async function saveEditComment(id, newName, newText){
+  const tk = getMyToken(id);
+  if(!tk){ toast('❌ لا تملك صلاحية التعديل', true); return; }
+  if(!db) return toast('❌ لا يوجد اتصال', true);
+
+  newName = (newName || '').trim() || 'زائر';
+  newText = (newText || '').trim();
+
+  if(!newText){ toast('❌ اكتب نص الدعاء', true); return; }
+  if(newText.length > 500){ toast('❌ النص طويل جداً', true); return; }
+  if(newName.length > 50){ toast('❌ الاسم طويل جداً', true); return; }
+
+  try {
+    const { error } = await db.rpc('update_comment', {
+      p_id: id, p_token: tk, p_name: newName, p_text: newText
+    });
+    if(error) throw error;
+    toast('✅ تم تعديل دعائك');
+    await loadComments();
+  } catch(e){
+    console.error(e);
+    toast('❌ فشل التعديل: ' + e.message, true);
+  }
+}
+
+async function deleteMyComment(id){
+  const tk = getMyToken(id);
+  if(!tk){ toast('❌ لا تملك صلاحية الحذف', true); return; }
+  if(!db) return toast('❌ لا يوجد اتصال', true);
+
+  if(!(await askDelete('حذف هذا الدعاء (وكل ردوده)؟'))) return;
+
+  try {
+    const { error } = await db.rpc('delete_my_comment', { p_id: id, p_token: tk });
+    if(error) throw error;
+    removeMyToken(id);
+    toast('🗑️ تم الحذف');
+    await loadComments();
+  } catch(e){
+    console.error(e);
+    toast('❌ فشل الحذف: ' + e.message, true);
+  }
+}
+
+async function deleteComment(id){
+  if(!requireAdmin()) return;
+  try {
+    await adminRpc('admin_del_comment', { p_id: id });
+    toast('🗑️ تم الحذف');
+    await loadComments();
+  } catch(e){
+    console.warn(e);
+    toast('❌ فشل الحذف: ' + e.message, true);
+  }
+}
+
+let appStarted = false;
+
+function startApp(){
+  if(appStarted) return;
+  appStarted = true;
+
   bindEvents();
-  loadMosqueVideo();
+  initHeroVideo();
+  initReveal();
   initSupabase();
 }
+
+document.addEventListener('DOMContentLoaded', startApp);
+if(document.readyState === 'interactive' || document.readyState === 'complete') startApp();
 </script>
 </body>
 </html>
