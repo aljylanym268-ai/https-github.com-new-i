@@ -289,7 +289,7 @@ body.dark .comment-form label{color:var(--gold-light)}
   animation:fadeIn .4s ease}
 .comment-item .comment-name{
   font-weight:700;color:var(--gold);font-size:.92rem;
-  margin-bottom:6px;display:flex;align-items:center;gap:6px}
+  margin-bottom:6px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 .comment-item .comment-text{
   font-family:'Amiri',serif;font-size:1.05rem;line-height:2;color:var(--text);
   word-break:break-word}
@@ -314,6 +314,68 @@ body.dark .comment-item .comment-text{color:var(--gold-light)}
   background:rgba(201,168,76,.15);border-radius:10px;
   padding:1px 8px;margin-right:6px;font-weight:700}
 
+/* ✅ شارة "رد على @فلان" */
+.reply-to-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  background:linear-gradient(135deg,rgba(201,168,76,.18),rgba(201,168,76,.06));
+  border:1px solid rgba(201,168,76,.4);
+  color:var(--gold);
+  padding:2px 10px;
+  border-radius:50px;
+  font-size:.75rem;
+  font-weight:700;
+  vertical-align:middle}
+.reply-to-badge i{
+  font-size:.7rem;
+  opacity:.85}
+
+/* ====== أزرار التفاعل: قلب + رد ====== */
+.comment-actions{
+  margin-top:10px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap}
+.heart-btn{
+  background:transparent;
+  border:1.5px solid rgba(220,20,60,.35);
+  color:#c0392b;
+  padding:5px 14px;
+  border-radius:50px;
+  font-family:inherit;
+  font-size:.82rem;
+  font-weight:600;
+  cursor:pointer;
+  transition:var(--ease);
+  display:inline-flex;
+  align-items:center;
+  gap:6px}
+.heart-btn:hover{
+  background:rgba(220,20,60,.08);
+  border-color:#c0392b;
+  transform:translateY(-1px)}
+.heart-btn.liked{
+  background:linear-gradient(135deg,#ff5a7a,#c0392b);
+  color:#fff;
+  border-color:#c0392b;
+  box-shadow:0 4px 14px rgba(220,20,60,.35)}
+.heart-btn.liked i{
+  animation:heartBeat .6s ease}
+.heart-btn .heart-count{
+  font-weight:700;
+  min-width:12px;
+  text-align:center;
+  display:inline-block;
+  transition:transform .25s ease}
+@keyframes heartBeat{
+  0%{transform:scale(1)}
+  25%{transform:scale(1.4)}
+  50%{transform:scale(.9)}
+  75%{transform:scale(1.15)}
+  100%{transform:scale(1)}}
+
 .comment-replies{
   margin-top:14px;
   padding-right:16px;
@@ -329,7 +391,6 @@ body.dark .comment-item .comment-text{color:var(--gold-light)}
 .comment-item.reply-item .comment-text{font-size:1rem}
 
 .btn-reply{
-  margin-top:10px;
   background:transparent;
   border:1.5px solid rgba(201,168,76,.5);
   color:var(--gold);
@@ -369,7 +430,6 @@ body.dark .comment-item .comment-text{color:var(--gold-light)}
   background:var(--border);color:var(--text)}
 .reply-form-actions .btn-cancel-edit:hover{background:#c9c9c9}
 
-/* ✅ كارت إحصائيات الزيارات */
 .visit-stats{
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
@@ -727,7 +787,6 @@ body.dark #uploadProgress > div{background:rgba(255,255,255,.1)}
 
   <div id="adminSection">
 
-    <!-- ✅ كارت إحصائيات الزيارات -->
     <div class="card admin">
       <h3 class="title">📊 إحصائيات الزيارات</h3>
       <div class="visit-stats" id="visitStats">
@@ -995,8 +1054,6 @@ async function tryLogin(){
 
   try {
     const { data, error } = await db.rpc('verify_admin', { pwd: p });
-    console.log('verify_admin:', { data, error });
-
     if(error){ if(e) e.textContent = '⚠️ ' + error.message; return; }
 
     if(data === true){
@@ -1029,8 +1086,6 @@ function showAdmin(){
   renderDuas(duasData, 'adminDuasGrid', true);
   renderVideos(videosData, 'adminVideosGrid', true);
   renderComments(commentsData, 'adminCommentsList', true);
-
-  /* ✅ تحميل إحصائيات الزيارات */
   loadVisitStats();
 }
 
@@ -1051,9 +1106,7 @@ function requireAdmin(){
 async function adminRpc(fnName, params){
   if(!db) throw new Error('لا يوجد اتصال');
   if(!ADMIN_PWD) throw new Error('غير مصرح');
-  console.log('RPC →', fnName, params);
   const { data, error } = await db.rpc(fnName, { pwd: ADMIN_PWD, ...params });
-  console.log('RPC ←', fnName, { data, error });
   if(error) throw error;
   return data;
 }
@@ -1067,13 +1120,7 @@ function getVideoEmbed(url){
 
   if(ytMatch){
     const id = ytMatch[1];
-    return '<iframe ' +
-      'src="https://www.youtube-nocookie.com/embed/' + id + '?rel=0&modestbranding=1&playsinline=1" ' +
-      'title="فيديو" ' +
-      'frameborder="0" ' +
-      'allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" ' +
-      'referrerpolicy="strict-origin-when-cross-origin" ' +
-      'allowfullscreen></iframe>';
+    return '<iframe src="https://www.youtube-nocookie.com/embed/' + id + '?rel=0&modestbranding=1&playsinline=1" title="فيديو" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>';
   }
 
   const safeUrl = String(url).replace(/"/g, '&quot;');
@@ -1104,7 +1151,6 @@ function bindEvents(){
   const av = $('btnAddVideo');  if(av) av.addEventListener('click', addVideo);
   const vf = $('videoFileInput'); if(vf) vf.addEventListener('change', handleVideoUpload);
 
-  /* ✅ زر تحديث إحصائيات الزيارات */
   const brs = $('btnRefreshStats');
   if(brs) brs.addEventListener('click', loadVisitStats);
 
@@ -1165,7 +1211,6 @@ async function loadAll(){
     await loadDuas();
     await loadVideos();
     await loadComments();
-
   } catch(e){ console.error(e); }
 }
 
@@ -1270,7 +1315,6 @@ async function addDua(){
   const t = $('newDuaText').value.trim();
   const a = $('newDuaAuthor').value.trim();
   if(!t){ toast('❌ اكتب نص الدعاء', true); return; }
-
   try {
     await adminRpc('admin_add_dua', { p_text: t, p_author: a });
     $('newDuaText').value = '';
@@ -1290,7 +1334,6 @@ async function deleteDua(id){
     toast('🗑️ تم الحذف');
     await loadDuas();
   } catch(e){
-    console.warn(e);
     toast('❌ فشل الحذف: ' + e.message, true);
   }
 }
@@ -1352,7 +1395,7 @@ async function addVideo(){
   const ytMatch = u.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/);
   if(u.includes('youtube') || u.includes('youtu.be')){
     if(!ytMatch){
-      toast('❌ رابط يوتيوب غير صالح — استخدم رابط فيديو مباشر', true);
+      toast('❌ رابط يوتيوب غير صالح', true);
       return;
     }
   }
@@ -1364,7 +1407,6 @@ async function addVideo(){
     toast('✅ تم إضافة الفيديو');
     await loadVideos();
   } catch(e){
-    console.error(e);
     toast('❌ فشل الإضافة: ' + e.message, true);
   }
 }
@@ -1408,7 +1450,6 @@ async function handleVideoUpload(e){
     if(bar) bar.style.width = '70%';
 
     const { data: urlData } = db.storage.from('videos').getPublicUrl(fileName);
-
     await adminRpc('admin_add_video', { p_url: urlData.publicUrl, p_title: title || file.name });
 
     if(bar) bar.style.width = '100%';
@@ -1419,10 +1460,9 @@ async function handleVideoUpload(e){
 
     setTimeout(() => { if(prog) prog.style.display = 'none'; }, 1500);
     await loadVideos();
-
   } catch(err){
     console.error(err);
-    toast('❌ فشل الرفع: ' + (err.message || 'خطأ غير معروف'), true);
+    toast('❌ فشل الرفع: ' + (err.message || 'خطأ'), true);
     if(prog) prog.style.display = 'none';
     e.target.value = '';
   }
@@ -1435,7 +1475,6 @@ async function deleteVideo(id){
     toast('🗑️ تم الحذف');
     await loadVideos();
   } catch(e){
-    console.warn(e);
     toast('❌ فشل الحذف: ' + e.message, true);
   }
 }
@@ -1467,15 +1506,12 @@ async function saveData(){
       p_hero_dua: $('adminHero').value,
       p_image:    null
     });
-
     $('fatherName').textContent  = $('adminName').value;
     $('fatherDates').textContent = $('adminDates').value;
     $('fatherBio').textContent   = $('adminBio').value;
     $('heroDua').textContent     = $('adminHero').value;
-
     toast('✅ تم الحفظ');
   } catch(e){
-    console.error(e);
     toast('❌ فشل الحفظ: ' + e.message, true);
   }
 }
@@ -1491,7 +1527,6 @@ async function handleFatherPhoto(e){
     e.target.value = '';
     return;
   }
-
   toast('⏳ جاري الرفع...');
 
   try {
@@ -1516,12 +1551,10 @@ async function handleFatherPhoto(e){
     $('fatherImg').src = urlData.publicUrl;
     if($('heroFatherImg')) $('heroFatherImg').src = urlData.publicUrl;
     toast('📸 تم تحديث الصورة');
-
   } catch(err){
     console.error(err);
     toast('❌ فشل الرفع: ' + (err.message || 'خطأ'), true);
   }
-
   e.target.value = '';
 }
 
@@ -1550,13 +1583,11 @@ async function handleGalleryUpload(e){
       const { data: urlData } = db.storage.from('gallery').getPublicUrl(fileName);
       await adminRpc('admin_add_gallery', { p_url: urlData.publicUrl, p_name: file.name });
       ok++;
-
     } catch(err){ console.warn(err); }
   }
 
   if(ok > 0){ toast('🖼️ تم رفع ' + ok + ' صورة'); await loadGallery(); }
   else toast('❌ فشل الرفع', true);
-
   e.target.value = '';
 }
 
@@ -1572,7 +1603,7 @@ async function deleteImg(id){
 }
 
 /* ============================================================
-   ✅ التعليقات / أدعية الزوار + الردود
+   ✅ التعليقات / أدعية الزوار + الردود + الإعجابات
    ============================================================ */
 function escapeHtml(s){
   return String(s).replace(/[&<>"']/g, c =>
@@ -1603,13 +1634,14 @@ function removeMyToken(id){
 
 async function loadComments(){
   if(!db) return;
-  const { data, error } = await db.rpc('list_comments');
+  const { data, error } = await db.rpc('list_comments', { p_uid: getVisitorId() });
   if(error){ console.warn('list_comments:', error.message); return; }
   commentsData = data || [];
   renderComments(commentsData, 'commentsList', false);
   renderComments(commentsData, 'adminCommentsList', true);
 }
 
+/* ✅ renderComments - يستخدم "الجذر" لعرض الردود العميقة */
 function renderComments(items, cid, withAdminDel){
   const el = $(cid); if(!el) return;
   el.innerHTML = '';
@@ -1619,13 +1651,32 @@ function renderComments(items, cid, withAdminDel){
     return;
   }
 
+  /* فهرس كل التعليقات بالـ id */
+  const allById = {};
+  items.forEach(it => { allById[String(it.id)] = it; });
+
+  /* دالة ترجع الجذر (root) لأي عنصر */
+  const findRoot = (item) => {
+    let cur = item;
+    let guard = 0;
+    while(cur && cur.parent_id != null && guard++ < 50){
+      const parent = allById[String(cur.parent_id)];
+      if(!parent) break;
+      cur = parent;
+    }
+    return cur ? cur.id : item.id;
+  };
+
   const repliesMap = {};
   const roots = [];
+
   items.forEach(it => {
-    if(it.parent_id == null) roots.push(it);
-    else {
-      const pid = String(it.parent_id);
-      (repliesMap[pid] = repliesMap[pid] || []).push(it);
+    if(it.parent_id == null){
+      roots.push(it);
+    } else {
+      const rootId = findRoot(it);
+      const k = String(rootId);
+      (repliesMap[k] = repliesMap[k] || []).push(it);
     }
   });
 
@@ -1633,16 +1684,23 @@ function renderComments(items, cid, withAdminDel){
 
   roots.forEach(root => {
     el.appendChild(buildCommentNode(
-      root, repliesMap[String(root.id)] || [], withAdminDel, 0
+      root,
+      repliesMap[String(root.id)] || [],
+      withAdminDel,
+      0,
+      root.id
     ));
   });
 }
 
-function buildCommentNode(it, replies, withAdminDel, depth){
+/* ✅ buildCommentNode - يمرّر rootId + يعرض "رد على @فلان" */
+function buildCommentNode(it, replies, withAdminDel, depth, rootId){
   const d = document.createElement('div');
   d.className = 'comment-item' + (depth > 0 ? ' reply-item' : '');
   d.dataset.id = it.id;
+  d.dataset.rootId = rootId || it.id;
 
+  /* الاسم */
   const n = document.createElement('div');
   n.className = 'comment-name';
   const isMine = !!getMyToken(it.id);
@@ -1656,13 +1714,24 @@ function buildCommentNode(it, replies, withAdminDel, depth){
   ic.className = 'fas fa-user-circle';
   n.appendChild(ic);
   n.appendChild(document.createTextNode(' ' + (it.name || 'زائر')));
+
+  /* ✅ شارة "رد على @فلان" */
+  if(it.reply_to_name && depth > 0){
+    const rt = document.createElement('span');
+    rt.className = 'reply-to-badge';
+    rt.innerHTML = '<i class="fas fa-reply"></i> @' + escapeHtml(it.reply_to_name);
+    n.appendChild(rt);
+  }
+
   d.appendChild(n);
 
+  /* النص */
   const t = document.createElement('div');
   t.className = 'comment-text';
   t.textContent = it.text || '';
   d.appendChild(t);
 
+  /* التاريخ */
   if(it.created_at){
     const dt = document.createElement('span');
     dt.className = 'comment-date';
@@ -1673,6 +1742,7 @@ function buildCommentNode(it, replies, withAdminDel, depth){
     d.appendChild(dt);
   }
 
+  /* أزرار الإجراءات (تعديل / حذف) */
   const actions = document.createElement('div');
   actions.className = 'my-actions';
 
@@ -1701,14 +1771,30 @@ function buildCommentNode(it, replies, withAdminDel, depth){
   }
   if(actions.children.length) d.appendChild(actions);
 
+  /* شريط التفاعل: قلب + رد */
+  const actionsRow = document.createElement('div');
+  actionsRow.className = 'comment-actions';
+
+  const likeBtn = document.createElement('button');
+  likeBtn.className = 'heart-btn' + (it.liked_by_me ? ' liked' : '');
+  likeBtn.dataset.cid = it.id;
+  likeBtn.innerHTML =
+    '<i class="fas fa-heart"></i> ' +
+    '<span class="heart-count">' + (it.likes_count || 0) + '</span>';
+  likeBtn.onclick = () => toggleLike(it.id, likeBtn);
+  actionsRow.appendChild(likeBtn);
+
+  /* ✅ زر الرد — يمرّر rootId + اسم الشخص اللي بنرد عليه */
   if(!withAdminDel){
     const rb = document.createElement('button');
     rb.className = 'btn-reply';
     rb.innerHTML = '<i class="fas fa-reply"></i> رد';
-    rb.onclick = () => toggleReplyForm(d, it.id);
-    d.appendChild(rb);
+    rb.onclick = () => toggleReplyForm(d, rootId || it.id, it.name || '');
+    actionsRow.appendChild(rb);
   }
+  d.appendChild(actionsRow);
 
+  /* الردود */
   if(replies.length){
     const rep = document.createElement('div');
     rep.className = 'comment-replies';
@@ -1718,19 +1804,63 @@ function buildCommentNode(it, replies, withAdminDel, depth){
     rep.appendChild(hd);
 
     replies.sort((a,b) => new Date(a.created_at) - new Date(b.created_at));
-    replies.forEach(r => rep.appendChild(buildCommentNode(r, [], withAdminDel, 1)));
+    replies.forEach(r => rep.appendChild(
+      buildCommentNode(r, [], withAdminDel, 1, rootId || it.id)
+    ));
     d.appendChild(rep);
   }
 
   return d;
 }
 
-function toggleReplyForm(parentNode, parentId){
+/* ✅ دالة تبديل الإعجاب */
+async function toggleLike(commentId, btnEl){
+  if(!db) return toast('❌ لا يوجد اتصال', true);
+
+  const uid = getVisitorId();
+  if(btnEl) btnEl.disabled = true;
+
+  try {
+    const { data, error } = await db.rpc('toggle_comment_like', {
+      p_comment_id: commentId,
+      p_uid:        uid
+    });
+    if(error) throw error;
+
+    const liked = data && data.liked;
+    const count = (data && data.count) || 0;
+
+    document.querySelectorAll('.heart-btn[data-cid="' + commentId + '"]').forEach(el => {
+      el.classList.toggle('liked', liked);
+      const s = el.querySelector('.heart-count');
+      if(s){
+        s.textContent = count;
+        s.style.transform = 'scale(1.4)';
+        setTimeout(() => { s.style.transform = 'scale(1)'; }, 250);
+      }
+    });
+  } catch(e){
+    console.error(e);
+    toast('❌ فشل الإعجاب: ' + e.message, true);
+  } finally {
+    if(btnEl) btnEl.disabled = false;
+  }
+}
+
+/* ✅ toggleReplyForm - يستخدم rootId + يمرّر اسم الشخص */
+function toggleReplyForm(parentNode, rootId, replyToName){
   const existing = parentNode.querySelector(':scope > .reply-form-box');
   if(existing){ existing.remove(); return; }
 
   const form = document.createElement('div');
   form.className = 'reply-form-box';
+
+  if(replyToName){
+    const info = document.createElement('div');
+    info.style.cssText = 'font-size:.8rem;color:var(--gold);margin-bottom:8px;font-weight:700';
+    info.innerHTML = '<i class="fas fa-reply"></i> الرد على: @' + escapeHtml(replyToName);
+    form.appendChild(info);
+  }
 
   const nameIn = document.createElement('input');
   nameIn.type = 'text'; nameIn.maxLength = 50;
@@ -1740,7 +1870,9 @@ function toggleReplyForm(parentNode, parentId){
 
   const txtTa = document.createElement('textarea');
   txtTa.maxLength = 500;
-  txtTa.placeholder = 'اكتب ردّك أو دعاءك...';
+  txtTa.placeholder = replyToName
+    ? 'اكتب ردّك على ' + replyToName + '...'
+    : 'اكتب ردّك أو دعاءك...';
   form.appendChild(txtTa);
 
   const row = document.createElement('div');
@@ -1754,7 +1886,8 @@ function toggleReplyForm(parentNode, parentId){
   const sendB = document.createElement('button');
   sendB.className = 'btn-save';
   sendB.innerHTML = '<i class="fas fa-paper-plane"></i> إرسال';
-  sendB.onclick = () => addComment(parentId, nameIn, txtTa, sendB);
+  /* ✅ نمرّر rootId + replyToName */
+  sendB.onclick = () => addComment(rootId, nameIn, txtTa, sendB, replyToName);
 
   row.appendChild(cancelB);
   row.appendChild(sendB);
@@ -1764,7 +1897,8 @@ function toggleReplyForm(parentNode, parentId){
   setTimeout(() => txtTa.focus(), 120);
 }
 
-async function addComment(parentId, nameEl, textEl, btnEl){
+/* ✅ addComment - يستقبل replyToName اختياري */
+async function addComment(parentId, nameEl, textEl, btnEl, replyToName){
   if(!db) return toast('❌ لا يوجد اتصال', true);
 
   if(!nameEl) nameEl = $('commentName');
@@ -1787,10 +1921,11 @@ async function addComment(parentId, nameEl, textEl, btnEl){
 
   try {
     const { data: newId, error } = await db.rpc('add_comment', {
-      p_name:      name,
-      p_text:      text,
-      p_token:     token,
-      p_parent_id: parentId || null
+      p_name:          name,
+      p_text:          text,
+      p_token:         token,
+      p_parent_id:     parentId || null,
+      p_reply_to_name: replyToName || null
     });
     if(error) throw error;
 
@@ -1815,12 +1950,12 @@ function startEditComment(id, currentName, currentText){
   const textEl   = el.querySelector(':scope > .comment-text');
   const dateEl   = el.querySelector(':scope > .comment-date');
   const actionEl = el.querySelector(':scope > .my-actions');
-  const replyBtn = el.querySelector(':scope > .btn-reply');
+  const repliesRow = el.querySelector(':scope > .comment-actions');
   if(nameEl)   nameEl.style.display   = 'none';
   if(textEl)   textEl.style.display   = 'none';
   if(dateEl)   dateEl.style.display   = 'none';
   if(actionEl) actionEl.style.display = 'none';
-  if(replyBtn) replyBtn.style.display = 'none';
+  if(repliesRow) repliesRow.style.display = 'none';
 
   const form = document.createElement('div');
   form.className = 'reply-form-box';
@@ -1909,7 +2044,6 @@ async function deleteComment(id){
     toast('🗑️ تم الحذف');
     await loadComments();
   } catch(e){
-    console.warn(e);
     toast('❌ فشل الحذف: ' + e.message, true);
   }
 }
@@ -1958,15 +2092,7 @@ function initOnlinePresence(){
     presenceChannel
       .on('presence', { event: 'sync' }, () => {
         const state = presenceChannel.presenceState();
-        const count = Object.keys(state).length;
-        updateOnlineCount(count);
-        console.log('👥 المتصلون الآن:', count);
-      })
-      .on('presence', { event: 'join' }, ({ key, newPresences }) => {
-        console.log('➕ دخل زائر:', key, newPresences);
-      })
-      .on('presence', { event: 'leave' }, ({ key, leftPresences }) => {
-        console.log('➖ خرج زائر:', key, leftPresences);
+        updateOnlineCount(Object.keys(state).length);
       })
       .subscribe(async (status) => {
         if(status === 'SUBSCRIBED'){
@@ -1980,7 +2106,6 @@ function initOnlinePresence(){
     window.addEventListener('beforeunload', () => {
       try { presenceChannel.untrack(); } catch(e){}
     });
-
   } catch(e){
     console.error('Presence error:', e);
     const el = $('onlineCount');
@@ -1991,21 +2116,17 @@ function initOnlinePresence(){
 /* ============================================================
    ✅ إحصائيات الزيارات
    ============================================================ */
-
-/* تسجيل زيارة عند فتح الصفحة (مرة واحدة كل 30 دقيقة) */
 async function trackVisit(){
   if(!db) return;
   const uid = getVisitorId();
   try {
     const { error } = await db.rpc('track_visit', { p_uid: uid });
     if(error) console.warn('track_visit:', error.message);
-    else console.log('✅ تم تسجيل الزيارة');
   } catch(e){
     console.warn('track visit error:', e);
   }
 }
 
-/* جلب الإحصائيات (للأدمن فقط) */
 async function loadVisitStats(){
   if(!requireAdmin()) return;
 
@@ -2020,12 +2141,10 @@ async function loadVisitStats(){
     if(error) throw error;
 
     const stats = data || {};
-
     const setVal = (id, val) => {
       const el = $(id);
       if(!el) return;
-      const n = Number(val) || 0;
-      el.textContent = n.toLocaleString('ar-EG');
+      el.textContent = (Number(val) || 0).toLocaleString('ar-EG');
       el.classList.remove('vs-loading');
       el.style.transform = 'scale(1.15)';
       setTimeout(() => { el.style.transform = 'scale(1)'; }, 250);
@@ -2037,7 +2156,6 @@ async function loadVisitStats(){
     setVal('vsMonth',       stats.month);
     setVal('vsUnique',      stats.unique);
     setVal('vsUniqueToday', stats.unique_today);
-
   } catch(e){
     console.error(e);
     ids.forEach(id => {
@@ -2059,10 +2177,7 @@ function startApp(){
   initReveal();
   initSupabase();
 
-  /* ✅ تشغيل عداد الزوار المتصلين بعد تأخير بسيط */
   setTimeout(() => initOnlinePresence(), 400);
-
-  /* ✅ تسجيل الزيارة بعد التأكد من الاتصال */
   setTimeout(() => trackVisit(), 800);
 }
 
