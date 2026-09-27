@@ -314,7 +314,6 @@ body.dark .comment-item .comment-text{color:var(--gold-light)}
   background:rgba(201,168,76,.15);border-radius:10px;
   padding:1px 8px;margin-right:6px;font-weight:700}
 
-/* ✅ شارة "رد على @فلان" */
 .reply-to-badge{
   display:inline-flex;
   align-items:center;
@@ -331,7 +330,6 @@ body.dark .comment-item .comment-text{color:var(--gold-light)}
   font-size:.7rem;
   opacity:.85}
 
-/* ====== أزرار التفاعل: قلب + رد ====== */
 .comment-actions{
   margin-top:10px;
   display:flex;
@@ -928,6 +926,28 @@ body.dark #uploadProgress > div{background:rgba(255,255,255,.1)}
    ============================================================ */
 const SB_URL = 'https://jtiiuzaquutpiekabjdy.supabase.co';
 const SB_KEY = 'sb_publishable_RnjhJzFoTjpK4kNYQzmeUg_q15IfgfB';
+
+/* ============================================================
+   ✅ إعداد إشعارات واتساب (CallMeBot)
+   ============================================================ */
+const WA_API_KEY = '5058861';
+const WA_PHONE   = '201080562909';
+const WA_ENABLED = true;
+
+function sendWhatsApp(message){
+  if(!WA_ENABLED) return;
+  if(!message) return;
+  try {
+    const url = 'https://api.callmebot.com/whatsapp.php' +
+                '?phone=' + encodeURIComponent(WA_PHONE) +
+                '&text='  + encodeURIComponent(message) +
+                '&apikey='+ encodeURIComponent(WA_API_KEY);
+    fetch(url, { mode: 'no-cors' }).catch(() => {});
+    console.log('📱 إشعار واتساب مُرسَل:', message);
+  } catch(e){
+    console.warn('WhatsApp error:', e);
+  }
+}
 
 let db = null;
 let ADMIN_PWD = null;
@@ -1641,7 +1661,6 @@ async function loadComments(){
   renderComments(commentsData, 'adminCommentsList', true);
 }
 
-/* ✅ renderComments - يستخدم "الجذر" لعرض الردود العميقة */
 function renderComments(items, cid, withAdminDel){
   const el = $(cid); if(!el) return;
   el.innerHTML = '';
@@ -1651,11 +1670,9 @@ function renderComments(items, cid, withAdminDel){
     return;
   }
 
-  /* فهرس كل التعليقات بالـ id */
   const allById = {};
   items.forEach(it => { allById[String(it.id)] = it; });
 
-  /* دالة ترجع الجذر (root) لأي عنصر */
   const findRoot = (item) => {
     let cur = item;
     let guard = 0;
@@ -1693,14 +1710,12 @@ function renderComments(items, cid, withAdminDel){
   });
 }
 
-/* ✅ buildCommentNode - يمرّر rootId + يعرض "رد على @فلان" */
 function buildCommentNode(it, replies, withAdminDel, depth, rootId){
   const d = document.createElement('div');
   d.className = 'comment-item' + (depth > 0 ? ' reply-item' : '');
   d.dataset.id = it.id;
   d.dataset.rootId = rootId || it.id;
 
-  /* الاسم */
   const n = document.createElement('div');
   n.className = 'comment-name';
   const isMine = !!getMyToken(it.id);
@@ -1715,7 +1730,6 @@ function buildCommentNode(it, replies, withAdminDel, depth, rootId){
   n.appendChild(ic);
   n.appendChild(document.createTextNode(' ' + (it.name || 'زائر')));
 
-  /* ✅ شارة "رد على @فلان" */
   if(it.reply_to_name && depth > 0){
     const rt = document.createElement('span');
     rt.className = 'reply-to-badge';
@@ -1725,13 +1739,11 @@ function buildCommentNode(it, replies, withAdminDel, depth, rootId){
 
   d.appendChild(n);
 
-  /* النص */
   const t = document.createElement('div');
   t.className = 'comment-text';
   t.textContent = it.text || '';
   d.appendChild(t);
 
-  /* التاريخ */
   if(it.created_at){
     const dt = document.createElement('span');
     dt.className = 'comment-date';
@@ -1742,7 +1754,6 @@ function buildCommentNode(it, replies, withAdminDel, depth, rootId){
     d.appendChild(dt);
   }
 
-  /* أزرار الإجراءات (تعديل / حذف) */
   const actions = document.createElement('div');
   actions.className = 'my-actions';
 
@@ -1771,7 +1782,6 @@ function buildCommentNode(it, replies, withAdminDel, depth, rootId){
   }
   if(actions.children.length) d.appendChild(actions);
 
-  /* شريط التفاعل: قلب + رد */
   const actionsRow = document.createElement('div');
   actionsRow.className = 'comment-actions';
 
@@ -1784,7 +1794,6 @@ function buildCommentNode(it, replies, withAdminDel, depth, rootId){
   likeBtn.onclick = () => toggleLike(it.id, likeBtn);
   actionsRow.appendChild(likeBtn);
 
-  /* ✅ زر الرد — يمرّر rootId + اسم الشخص اللي بنرد عليه */
   if(!withAdminDel){
     const rb = document.createElement('button');
     rb.className = 'btn-reply';
@@ -1794,7 +1803,6 @@ function buildCommentNode(it, replies, withAdminDel, depth, rootId){
   }
   d.appendChild(actionsRow);
 
-  /* الردود */
   if(replies.length){
     const rep = document.createElement('div');
     rep.className = 'comment-replies';
@@ -1813,7 +1821,6 @@ function buildCommentNode(it, replies, withAdminDel, depth, rootId){
   return d;
 }
 
-/* ✅ دالة تبديل الإعجاب */
 async function toggleLike(commentId, btnEl){
   if(!db) return toast('❌ لا يوجد اتصال', true);
 
@@ -1839,6 +1846,11 @@ async function toggleLike(commentId, btnEl){
         setTimeout(() => { s.style.transform = 'scale(1)'; }, 250);
       }
     });
+
+    /* ✅ إشعار واتساب عند الإعجاب فقط */
+    if(liked){
+      sendWhatsApp('❤️ إعجاب جديد على التعليق رقم: ' + commentId);
+    }
   } catch(e){
     console.error(e);
     toast('❌ فشل الإعجاب: ' + e.message, true);
@@ -1847,7 +1859,6 @@ async function toggleLike(commentId, btnEl){
   }
 }
 
-/* ✅ toggleReplyForm - يستخدم rootId + يمرّر اسم الشخص */
 function toggleReplyForm(parentNode, rootId, replyToName){
   const existing = parentNode.querySelector(':scope > .reply-form-box');
   if(existing){ existing.remove(); return; }
@@ -1886,7 +1897,6 @@ function toggleReplyForm(parentNode, rootId, replyToName){
   const sendB = document.createElement('button');
   sendB.className = 'btn-save';
   sendB.innerHTML = '<i class="fas fa-paper-plane"></i> إرسال';
-  /* ✅ نمرّر rootId + replyToName */
   sendB.onclick = () => addComment(rootId, nameIn, txtTa, sendB, replyToName);
 
   row.appendChild(cancelB);
@@ -1897,7 +1907,6 @@ function toggleReplyForm(parentNode, rootId, replyToName){
   setTimeout(() => txtTa.focus(), 120);
 }
 
-/* ✅ addComment - يستقبل replyToName اختياري */
 async function addComment(parentId, nameEl, textEl, btnEl, replyToName){
   if(!db) return toast('❌ لا يوجد اتصال', true);
 
@@ -1931,6 +1940,14 @@ async function addComment(parentId, nameEl, textEl, btnEl, replyToName){
 
     if(newId) saveMyToken(newId, token);
     if(textEl) textEl.value = '';
+
+    /* ✅ إشعار واتساب عند الكتابة أو الرد */
+    sendWhatsApp(
+      (parentId ? '↩️ رد جديد\n' : '📝 دعاء جديد\n') +
+      '👤 من: ' + name + '\n' +
+      (replyToName ? '🎯 رد على: ' + replyToName + '\n' : '') +
+      '💬 النص: ' + text
+    );
 
     toast(parentId ? '💬 تم نشر ردّك' : '🤲 جزاك الله خيراً، تم نشر دعائك');
     await loadComments();
@@ -2114,14 +2131,24 @@ function initOnlinePresence(){
 }
 
 /* ============================================================
-   ✅ إحصائيات الزيارات
+   ✅ إحصائيات الزيارات + إشعار دخول الزائر
    ============================================================ */
 async function trackVisit(){
   if(!db) return;
   const uid = getVisitorId();
   try {
     const { error } = await db.rpc('track_visit', { p_uid: uid });
-    if(error) console.warn('track_visit:', error.message);
+    if(error){
+      console.warn('track_visit:', error.message);
+    } else {
+      console.log('✅ تم تسجيل الزيارة');
+
+      /* ✅ إشعار واتساب عند دخول زائر جديد */
+      sendWhatsApp(
+        '👤 زائر جديد دخل الموقع\n' +
+        '⏰ ' + new Date().toLocaleString('ar-EG')
+      );
+    }
   } catch(e){
     console.warn('track visit error:', e);
   }
